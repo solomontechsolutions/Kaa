@@ -172,7 +172,7 @@ export default async function SubmissionDetailPage(props: PageProps<"/field/subm
 
       {/* ── Actions ─────────────────────────────────────────────── */}
       {(isDraft || needsWork) && (
-        <div className="sticky bottom-24 mt-6 flex gap-3">
+        <div className="sticky bottom-[5.5rem] z-10 mt-6 flex gap-3 rounded-2xl border border-border bg-surface-raised/95 p-2.5 shadow-[var(--shadow-elev-2)] backdrop-blur-md">
           <Button variant="outline" className="flex-1">
             Save draft
           </Button>

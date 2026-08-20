@@ -514,7 +514,7 @@ export function CaptureForm({ wards, amenities }: { wards: Ward[]; amenities: { 
       )}
 
       {/* ── Navigation ──────────────────────────────────────────── */}
-      <div className="sticky bottom-24 mt-5 flex gap-3">
+      <div className="sticky bottom-[5.5rem] z-10 mt-5 flex gap-3 rounded-2xl border border-border bg-surface-raised/95 p-2.5 shadow-[var(--shadow-elev-2)] backdrop-blur-md">
         <Button
           variant="outline"
           className="flex-1"

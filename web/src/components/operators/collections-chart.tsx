@@ -60,7 +60,8 @@ export function CollectionsChart({ data }: { data: Point[] }) {
               );
             }}
           />
-          <Bar dataKey="expected" radius={[6, 6, 0, 0]} fill="var(--color-ink-200)" />
+          {/* Semantic token, so the "invoiced" bar stays legible in both themes */}
+          <Bar dataKey="expected" radius={[6, 6, 0, 0]} fill="var(--border-strong)" />
           <Bar dataKey="collected" radius={[6, 6, 0, 0]}>
             {data.map((point, i) => {
               const rate = point.expected ? point.collected / point.expected : 0;
@@ -76,7 +77,7 @@ export function CollectionsChart({ data }: { data: Point[] }) {
       </ResponsiveContainer>
       <div className="mt-3 flex items-center justify-center gap-5 text-xs text-foreground-muted">
         <span className="inline-flex items-center gap-1.5">
-          <span className="size-2.5 rounded-sm bg-ink-200" /> Invoiced
+          <span className="size-2.5 rounded-sm bg-border-strong" /> Invoiced
         </span>
         <span className="inline-flex items-center gap-1.5">
           <span className="size-2.5 rounded-sm bg-kaa-500" /> Collected

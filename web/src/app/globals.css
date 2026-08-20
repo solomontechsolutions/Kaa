@@ -74,6 +74,23 @@
   --ring: #00C89A;
 }
 
+/* Tailwind v4's `dark:` variant keys off prefers-color-scheme by default, so
+   the semantic tokens follow the same signal. `.dark` stays available for an
+   explicit toggle later. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0B0D11;
+    --surface: #111318;
+    --surface-raised: #1B1E23;
+    --border: #292C31;
+    --border-strong: #3D4046;
+    --foreground: #F2F4F5;
+    --foreground-muted: #A7AEB7;
+    --foreground-subtle: #838B96;
+    --ring: #22D19E;
+  }
+}
+
 .dark {
   --background: #0B0D11;
   --surface: #111318;
@@ -152,6 +169,13 @@
       linear-gradient(to right, rgb(17 19 24 / 0.04) 1px, transparent 1px),
       linear-gradient(to bottom, rgb(17 19 24 / 0.04) 1px, transparent 1px);
     background-size: 64px 64px;
+  }
+  @media (prefers-color-scheme: dark) {
+    .grid-lines {
+      background-image:
+        linear-gradient(to right, rgb(255 255 255 / 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgb(255 255 255 / 0.04) 1px, transparent 1px);
+    }
   }
   .dark .grid-lines {
     background-image:
