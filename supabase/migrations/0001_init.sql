@@ -8,9 +8,11 @@
 --    • Kaa Field Ops   — field agents capturing and verifying listings
 -- ═══════════════════════════════════════════════════════════════════════
 
-create extension if not exists "uuid-ossp";
-create extension if not exists postgis;
-create extension if not exists pg_trgm;
+-- Supabase keeps extensions out of `public`; the database search_path already
+-- includes `extensions`, so the types and functions below resolve unqualified.
+-- `if not exists` short-circuits when Supabase has already enabled one.
+create extension if not exists postgis  with schema extensions;
+create extension if not exists pg_trgm  with schema extensions;
 
 -- ───────────────────────────────────────────────────────────────────────
 --  Enums
@@ -57,14 +59,14 @@ create type media_kind     as enum ('photo', 'video', 'floorplan', 'document');
 -- ───────────────────────────────────────────────────────────────────────
 
 create table regions (
-  id         uuid primary key default uuid_generate_v4(),
+  id         uuid primary key default gen_random_uuid(),
   name       text not null unique,
   code       text unique,
   created_at timestamptz not null default now()
 );
 
 create table districts (
-  id         uuid primary key default uuid_generate_v4(),
+  id         uuid primary key default gen_random_uuid(),
   region_id  uuid not null references regions(id) on delete cascade,
   name       text not null,
   code       text,
@@ -73,7 +75,7 @@ create table districts (
 );
 
 create table wards (
-  id          uuid primary key default uuid_generate_v4(),
+  id          uuid primary key default gen_random_uuid(),
   district_id uuid not null references districts(id) on delete cascade,
   name        text not null,
   code        text,
@@ -121,7 +123,7 @@ create table user_roles (
 -- ───────────────────────────────────────────────────────────────────────
 
 create table organizations (
-  id             uuid primary key default uuid_generate_v4(),
+  id             uuid primary key default gen_random_uuid(),
   name           text not null,
   slug           text not null unique,
   type           org_type not null default 'individual_landlord',
@@ -176,7 +178,7 @@ create table field_agent_zones (
 -- ───────────────────────────────────────────────────────────────────────
 
 create table properties (
-  id            uuid primary key default uuid_generate_v4(),
+  id            uuid primary key default gen_random_uuid(),
   org_id        uuid not null references organizations(id) on delete cascade,
   name          text not null,
   type          property_type not null default 'apartment_block',
@@ -204,7 +206,7 @@ create index properties_location_idx on properties using gist(location);
 create index properties_name_trgm    on properties using gin(name gin_trgm_ops);
 
 create table units (
-  id             uuid primary key default uuid_generate_v4(),
+  id             uuid primary key default gen_random_uuid(),
   property_id    uuid not null references properties(id) on delete cascade,
   label          text not null,                       -- "A3", "Ground Floor", "House"
   bedrooms       int  not null default 1,
@@ -235,7 +237,7 @@ comment on column units.advance_months is
   'Months of rent demanded upfront. Surfacing this is a core Kaa trust feature — it is the number tenants are ambushed with.';
 
 create table amenities (
-  id       uuid primary key default uuid_generate_v4(),
+  id       uuid primary key default gen_random_uuid(),
   slug     text not null unique,
   name_en  text not null,
   name_sw  text not null,
@@ -250,7 +252,7 @@ create table unit_amenities (
 );
 
 create table media (
-  id          uuid primary key default uuid_generate_v4(),
+  id          uuid primary key default gen_random_uuid(),
   unit_id     uuid references units(id) on delete cascade,
   property_id uuid references properties(id) on delete cascade,
   kind        media_kind not null default 'photo',
@@ -274,7 +276,7 @@ create index media_property_idx on media(property_id, position);
 -- ───────────────────────────────────────────────────────────────────────
 
 create table listing_submissions (
-  id             uuid primary key default uuid_generate_v4(),
+  id             uuid primary key default gen_random_uuid(),
   reference      text not null unique,                -- KAA-SUB-2026-00184
   agent_id       uuid not null references field_agents(id) on delete restrict,
   property_id    uuid references properties(id) on delete set null,
@@ -302,7 +304,7 @@ create index listing_submissions_agent_idx  on listing_submissions(agent_id, sta
 create index listing_submissions_status_idx on listing_submissions(status, submitted_at desc);
 
 create table submission_media (
-  id            uuid primary key default uuid_generate_v4(),
+  id            uuid primary key default gen_random_uuid(),
   submission_id uuid not null references listing_submissions(id) on delete cascade,
   kind          media_kind not null default 'photo',
   storage_path  text not null,
@@ -319,7 +321,7 @@ create table submission_media (
 -- ───────────────────────────────────────────────────────────────────────
 
 create table agent_earnings (
-  id            uuid primary key default uuid_generate_v4(),
+  id            uuid primary key default gen_random_uuid(),
   agent_id      uuid not null references field_agents(id) on delete cascade,
   kind          earning_kind not null,
   amount        bigint not null,                      -- TZS
@@ -342,7 +344,7 @@ create index agent_earnings_status_idx on agent_earnings(status);
 
 -- A renter known to an operator. May or may not be a Kaa app user.
 create table tenants (
-  id          uuid primary key default uuid_generate_v4(),
+  id          uuid primary key default gen_random_uuid(),
   org_id      uuid not null references organizations(id) on delete cascade,
   profile_id  uuid references profiles(id) on delete set null,
   full_name   text not null,
@@ -362,7 +364,7 @@ create index tenants_profile_idx on tenants(profile_id);
 create index tenants_phone_idx   on tenants(phone);
 
 create table leases (
-  id             uuid primary key default uuid_generate_v4(),
+  id             uuid primary key default gen_random_uuid(),
   reference      text not null unique,                -- KAA-LSE-2026-00311
   unit_id        uuid not null references units(id) on delete restrict,
   tenant_id      uuid not null references tenants(id) on delete restrict,
@@ -403,7 +405,7 @@ alter table agent_earnings
   foreign key (lease_id) references leases(id) on delete set null;
 
 create table rent_invoices (
-  id           uuid primary key default uuid_generate_v4(),
+  id           uuid primary key default gen_random_uuid(),
   reference    text not null unique,
   lease_id     uuid not null references leases(id) on delete cascade,
   org_id       uuid not null references organizations(id) on delete cascade,
@@ -422,7 +424,7 @@ create index rent_invoices_lease_idx on rent_invoices(lease_id, period_start des
 create index rent_invoices_due_idx   on rent_invoices(org_id, status, due_date);
 
 create table payments (
-  id           uuid primary key default uuid_generate_v4(),
+  id           uuid primary key default gen_random_uuid(),
   reference    text not null unique,
   invoice_id   uuid references rent_invoices(id) on delete set null,
   org_id       uuid references organizations(id) on delete set null,
@@ -448,7 +450,7 @@ create index payments_org_idx     on payments(org_id, settled_at desc);
 -- ───────────────────────────────────────────────────────────────────────
 
 create table viewing_requests (
-  id            uuid primary key default uuid_generate_v4(),
+  id            uuid primary key default gen_random_uuid(),
   reference     text not null unique,
   unit_id       uuid not null references units(id) on delete cascade,
   org_id        uuid not null references organizations(id) on delete cascade,
@@ -468,7 +470,7 @@ create index viewing_requests_org_idx   on viewing_requests(org_id, status);
 create index viewing_requests_agent_idx on viewing_requests(assigned_agent_id, scheduled_at);
 
 create table maintenance_requests (
-  id          uuid primary key default uuid_generate_v4(),
+  id          uuid primary key default gen_random_uuid(),
   reference   text not null unique,
   unit_id     uuid not null references units(id) on delete cascade,
   org_id      uuid not null references organizations(id) on delete cascade,
@@ -492,7 +494,7 @@ create index maintenance_org_idx on maintenance_requests(org_id, status, priorit
 -- ───────────────────────────────────────────────────────────────────────
 
 create table subscriptions (
-  id         uuid primary key default uuid_generate_v4(),
+  id         uuid primary key default gen_random_uuid(),
   profile_id uuid not null references profiles(id) on delete cascade,
   plan       text not null default 'tenant_annual',
   amount     bigint not null default 10000,           -- TZS 10,000 / year
@@ -506,7 +508,7 @@ create table subscriptions (
 create index subscriptions_profile_idx on subscriptions(profile_id, is_active);
 
 create table waitlist (
-  id         uuid primary key default uuid_generate_v4(),
+  id         uuid primary key default gen_random_uuid(),
   name       text,
   phone      text,
   email      text,
@@ -526,7 +528,7 @@ create unique index waitlist_email_idx on waitlist(email) where email is not nul
 -- ───────────────────────────────────────────────────────────────────────
 
 create table notifications (
-  id         uuid primary key default uuid_generate_v4(),
+  id         uuid primary key default gen_random_uuid(),
   user_id    uuid not null references profiles(id) on delete cascade,
   title      text not null,
   body       text,
