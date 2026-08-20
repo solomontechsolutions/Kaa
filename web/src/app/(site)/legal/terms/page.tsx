@@ -6,9 +6,9 @@ export const metadata: Metadata = { title: "Terms of service" };
 
 export default function TermsPage() {
   return (
-    <div className="mx-auto w-full max-w-3xl px-5 py-20 lg:px-8">
+    <div className="shell py-24 lg:py-28">
       <Badge tone="warning" className="mb-5">
-        Draft — pending legal review
+        Draft, pending legal review
       </Badge>
       <h1 className="text-4xl font-semibold tracking-tight">Terms of service</h1>
       <p className="mt-5 text-lg leading-relaxed text-foreground-muted">

@@ -134,7 +134,7 @@ export default function PaymentsPage() {
                         </p>
                       </Td>
                       <Td>
-                        <p className="text-sm font-medium">{payment.tenant?.fullName ?? "—"}</p>
+                        <p className="text-sm font-medium">{payment.tenant?.fullName ?? "-"}</p>
                         <p className="text-xs text-foreground-subtle">
                           {payment.unit?.property.name} · {payment.unit?.label}
                         </p>
@@ -145,7 +145,7 @@ export default function PaymentsPage() {
                       </Td>
                       <Td className="tnum text-right font-medium">{money(payment.amount)}</Td>
                       <Td className="tnum text-right text-xs text-foreground-subtle">
-                        {payment.feeAmount ? money(payment.feeAmount) : "—"}
+                        {payment.feeAmount ? money(payment.feeAmount) : "-"}
                       </Td>
                       <Td>
                         <StatusBadge kind="payment" value={payment.status} />

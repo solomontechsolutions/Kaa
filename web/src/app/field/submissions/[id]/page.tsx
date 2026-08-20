@@ -164,7 +164,7 @@ export default async function SubmissionDetailPage(props: PageProps<"/field/subm
           </p>
           <p className="mt-2 text-xs text-foreground-subtle">
             {accurate
-              ? "Accuracy is within tolerance — the pin will land on the right plot."
+              ? "Accuracy is within tolerance. The pin will land on the right plot."
               : "Accuracy is above 10 m. Re-take the pin standing at the gate, with a clear view of the sky."}
           </p>
         </CardBody>

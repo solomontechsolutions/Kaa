@@ -12,7 +12,7 @@ import type { SubmissionStatus } from "@/lib/types";
 
 export const metadata: Metadata = { title: "My listings" };
 
-/** Open work first, then history — an agent cares about what is unfinished. */
+/** Open work first, then history, an agent cares about what is unfinished. */
 const ORDER: SubmissionStatus[] = ["changes_requested", "draft", "in_review", "submitted", "approved", "rejected"];
 
 export default function SubmissionsPage() {

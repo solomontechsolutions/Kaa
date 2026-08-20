@@ -7,7 +7,7 @@
    ──────────────────────────────────────────────────────────────── */
 
 @theme {
-  /* Brand green — #00C89A anchors the 500 step */
+  /* Brand green, #00C89A anchors the 500 step */
   --color-kaa-50:  #E6FBF2;
   --color-kaa-100: #C4F5E3;
   --color-kaa-200: #8FEBCC;
@@ -20,7 +20,7 @@
   --color-kaa-900: #004B3B;
   --color-kaa-950: #002B22;
 
-  /* Ink — #111318 anchors the 950 step */
+  /* Ink, #111318 anchors the 950 step */
   --color-ink-50:  #F2F4F5;
   --color-ink-100: #E4E7EA;
   --color-ink-200: #CBD0D6;
@@ -39,17 +39,35 @@
   --color-danger:  #DC3545;
   --color-info:    #2B7FFF;
 
-  --font-sans: var(--font-poppins), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* Apple's system face where it exists, the platform's best equivalent elsewhere.
+     Using the system stack means real SF Pro on Apple hardware without
+     redistributing a font Apple does not license for the web. */
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
+    "Helvetica Neue", "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
+
+  /* Every figure on Kaa is set in Calibri: rent, metrics, references, dates. */
+  --font-numeric: Calibri, Carlito, "Segoe UI", system-ui, sans-serif;
 
   --radius-card: 1rem;
+
+  /* Kaa fills the viewport rather than sitting in a narrow column. */
+  --width-shell: 96rem;
 
   --shadow-elev-1: 0 1px 2px 0 rgb(17 19 24 / 0.05);
   --shadow-elev-2: 0 4px 16px -2px rgb(17 19 24 / 0.08), 0 2px 4px -2px rgb(17 19 24 / 0.04);
   --shadow-elev-3: 0 16px 48px -12px rgb(17 19 24 / 0.16), 0 4px 12px -4px rgb(17 19 24 / 0.06);
   --shadow-glow:   0 8px 32px -8px rgb(0 200 154 / 0.45);
 
-  --animate-fade-up: fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
-  --animate-marquee: marquee 40s linear infinite;
+  --animate-fade-up: fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-marquee: marquee 42s linear infinite;
+  --animate-float: float 7s ease-in-out infinite;
+  --animate-shimmer: shimmer 2.4s linear infinite;
+  --animate-pinch-left: pinch-left 3.6s cubic-bezier(0.45, 0, 0.25, 1) infinite;
+  --animate-pinch-right: pinch-right 3.6s cubic-bezier(0.45, 0, 0.25, 1) infinite;
+  --animate-scuttle: scuttle 3.6s cubic-bezier(0.45, 0, 0.25, 1) infinite;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 @keyframes fade-up {
@@ -59,6 +77,35 @@
 @keyframes marquee {
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-10px); }
+}
+@keyframes shimmer {
+  from { background-position: -180% 0; }
+  to   { background-position: 180% 0; }
+}
+
+/* The crab works its pincers: a quick snap, then a long hold.
+   Each claw is rotated about its own base so the blades hinge rather than slide. */
+@keyframes pinch-left {
+  0%, 62%, 100% { transform: rotate(0deg); }
+  70%           { transform: rotate(-13deg); }
+  78%           { transform: rotate(3deg); }
+  86%           { transform: rotate(-7deg); }
+}
+@keyframes pinch-right {
+  0%, 62%, 100% { transform: rotate(0deg); }
+  70%           { transform: rotate(13deg); }
+  78%           { transform: rotate(-3deg); }
+  86%           { transform: rotate(7deg); }
+}
+/* The shell rocks very slightly against the claws, so the snap has weight. */
+@keyframes scuttle {
+  0%, 62%, 100% { transform: translateY(0) rotate(0deg); }
+  72%           { transform: translateY(0.6px) rotate(-1.1deg); }
+  84%           { transform: translateY(0.3px) rotate(0.7deg); }
 }
 
 /* ── Semantic surface roles ─────────────────────────────────────── */
@@ -138,15 +185,88 @@
     outline: 2px solid var(--ring);
     outline-offset: 2px;
   }
-  /* Tabular figures for money and metrics */
+  /* Every figure on Kaa: Calibri, tabular, so columns of money line up. */
   .tnum {
+    font-family: var(--font-numeric);
     font-variant-numeric: tabular-nums;
     font-feature-settings: "tnum";
+    letter-spacing: 0.01em;
   }
 }
 
 @layer utilities {
   .text-balance { text-wrap: balance; }
+
+  /* Page shell. Wide by default, with room to breathe only at the extremes. */
+  .shell {
+    width: 100%;
+    max-width: var(--width-shell);
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+  @media (min-width: 768px)  { .shell { padding-inline: 2rem; } }
+  @media (min-width: 1280px) { .shell { padding-inline: 3rem; } }
+  @media (min-width: 1600px) { .shell { padding-inline: 4rem; } }
+
+  /* Scroll reveal. Elements start displaced and settle when observed;
+     `data-revealed` is set by components/motion/reveal.tsx. */
+  [data-reveal] {
+    opacity: 0;
+    transform: translateY(18px);
+    transition:
+      opacity 0.75s var(--ease-out-expo),
+      transform 0.75s var(--ease-out-expo);
+    transition-delay: var(--reveal-delay, 0ms);
+    will-change: opacity, transform;
+  }
+  [data-reveal="scale"]  { transform: translateY(18px) scale(0.97); }
+  [data-reveal="left"]   { transform: translateX(-22px); }
+  [data-reveal="right"]  { transform: translateX(22px); }
+  [data-revealed="true"] {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Pincer loop. Hover works the claws on any mark; `animated` runs it idle. */
+  .kaa-mark-animated .kaa-claw-left  { animation: var(--animate-pinch-left); }
+  .kaa-mark-animated .kaa-claw-right { animation: var(--animate-pinch-right); }
+  .kaa-mark-animated .kaa-shell      { animation: var(--animate-scuttle); }
+
+  .group:hover .kaa-claw-left,
+  a:hover .kaa-claw-left,
+  button:hover .kaa-claw-left  { animation: pinch-left 0.7s var(--ease-spring); }
+  .group:hover .kaa-claw-right,
+  a:hover .kaa-claw-right,
+  button:hover .kaa-claw-right { animation: pinch-right 0.7s var(--ease-spring); }
+
+  .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+
+  /* Installed, Kaa should not feel like a web page being poked at. */
+  .kaa-app {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    overscroll-behavior: none;
+  }
+  .kaa-app button,
+  .kaa-app a {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  .shimmer-text {
+    background-image: linear-gradient(
+      100deg,
+      var(--foreground) 30%,
+      var(--color-kaa-500) 48%,
+      var(--foreground) 66%
+    );
+    background-size: 220% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: var(--animate-shimmer);
+  }
   .text-pretty  { text-wrap: pretty; }
 
   .kaa-gradient {

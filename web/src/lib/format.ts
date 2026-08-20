@@ -19,7 +19,7 @@ export function money(amount: number) {
   return TZS.format(amount).replace("TZS", "TSh");
 }
 
-/** `TSh 1.2M` — for dashboard tiles where space is tight. */
+/** `TSh 1.2M`, for dashboard tiles where space is tight. */
 export function moneyCompact(amount: number) {
   return `TSh ${TZS_COMPACT.format(amount)}`;
 }
@@ -54,7 +54,7 @@ export function dateTime(value: string | Date) {
   return DATETIME.format(typeof value === "string" ? new Date(value) : value);
 }
 
-/** `3 days ago`, `in 2 months` — relative to now. */
+/** `3 days ago`, `in 2 months`, relative to now. */
 export function relative(value: string | Date) {
   const then = typeof value === "string" ? new Date(value) : value;
   const diff = then.getTime() - Date.now();

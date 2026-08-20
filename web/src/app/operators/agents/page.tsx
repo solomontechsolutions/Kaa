@@ -38,7 +38,7 @@ export default function AgentsPage() {
         <CardHeader className="p-5">
           <div>
             <CardTitle>Submission review queue</CardTitle>
-            <p className="mt-1 text-sm text-foreground-muted">Oldest first — agents are paid on approval.</p>
+            <p className="mt-1 text-sm text-foreground-muted">Oldest first. Agents are paid on approval.</p>
           </div>
           <Badge tone={queue.length ? "warning" : "neutral"}>{queue.length} waiting</Badge>
         </CardHeader>

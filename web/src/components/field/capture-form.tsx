@@ -200,7 +200,7 @@ export function CaptureForm({ wards, amenities }: { wards: Ward[]; amenities: { 
                   {fix.accuracy > ACCURACY_LIMIT_M && (
                     <p className="mt-2 flex items-start gap-1.5 text-xs text-[var(--color-warning)]">
                       <TriangleAlert className="mt-px size-3.5 shrink-0" />
-                      Above the {ACCURACY_LIMIT_M} m limit — this pin may land on the wrong plot. Take it again.
+                      Above the {ACCURACY_LIMIT_M} m limit. This pin may land on the wrong plot. Take it again.
                     </p>
                   )}
                   <Button variant="outline" size="sm" className="mt-3 w-full" onClick={captureFix} disabled={locating}>
@@ -225,7 +225,7 @@ export function CaptureForm({ wards, amenities }: { wards: Ward[]; amenities: { 
                 <option value="">Choose a ward…</option>
                 {wards.map((ward) => (
                   <option key={ward.id} value={ward.id}>
-                    {ward.name} — {ward.district}
+                    {ward.name}, {ward.district}
                   </option>
                 ))}
               </Select>
@@ -328,7 +328,7 @@ export function CaptureForm({ wards, amenities }: { wards: Ward[]; amenities: { 
               </Field>
             </div>
 
-            <Field label="Description" hint="Water source, power, security, parking — what a tenant asks about.">
+            <Field label="Description" hint="Water source, power, security, parking, what a tenant asks about.">
               <Textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -383,7 +383,7 @@ export function CaptureForm({ wards, amenities }: { wards: Ward[]; amenities: { 
             </Field>
 
             <div className="grid grid-cols-2 gap-4">
-              <Field label="Months upfront" hint="Be honest — this is what tenants get ambushed with.">
+              <Field label="Months upfront" hint="Be honest, this is what tenants get ambushed with.">
                 <Select value={advanceMonths} onChange={(e) => setAdvanceMonths(e.target.value)}>
                   {["1", "3", "6", "12"].map((m) => (
                     <option key={m} value={m}>

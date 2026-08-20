@@ -192,7 +192,7 @@ export function getSubmission(id: string): ListingSubmission | undefined {
   return submissions.find((s) => s.id === id || s.reference === id);
 }
 
-/** Submissions waiting on a human decision, oldest first — the review queue. */
+/** Submissions waiting on a human decision, oldest first, the review queue. */
 export function reviewQueue(): ListingSubmission[] {
   const open: SubmissionStatus[] = ["submitted", "in_review"];
   return submissions
@@ -226,7 +226,7 @@ export function earningsSummary(agentId = CURRENT_AGENT_ID) {
     paid: sum((e) => e.status === "paid"),
     approved: sum((e) => e.status === "approved"),
     accrued: sum((e) => e.status === "accrued"),
-    /** Approved but not yet disbursed, plus accrued — what the agent is owed. */
+    /** Approved but not yet disbursed, plus accrued, what the agent is owed. */
     pending: sum((e) => e.status === "approved" || e.status === "accrued"),
     lifetime: sum((e) => e.status !== "reversed"),
     rows,

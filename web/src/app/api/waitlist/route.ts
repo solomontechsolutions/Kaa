@@ -34,7 +34,7 @@ export async function POST(request: Request) {
   const entry = { ...parsed.data, phone, source: "web" };
 
   if (!isSupabaseConfigured()) {
-    // No database yet — acknowledge so the marketing site is still usable.
+    // No database yet, acknowledge so the marketing site is still usable.
     console.info("[waitlist] (no Supabase configured)", entry);
     return NextResponse.json({ ok: true, stored: false });
   }

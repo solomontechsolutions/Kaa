@@ -2,10 +2,14 @@ import {
   BadgeCheck,
   Banknote,
   Building2,
-  CalendarCheck,
   Camera,
+  Eye,
   FileSignature,
+  Fingerprint,
+  Handshake,
+  PhoneCall,
   ShieldCheck,
+  Smartphone,
   TrendingDown,
   UsersRound,
   Wrench,
@@ -13,45 +17,46 @@ import {
 import type { Metadata } from "next";
 
 import { WaitlistForm } from "@/components/marketing/waitlist-form";
+import { Reveal, RevealGroup } from "@/components/motion/reveal";
 import { Badge, ButtonLink, Card } from "@/components/ui";
 import { money } from "@/lib/format";
 
 export const metadata: Metadata = {
   title: "For landlords",
   description:
-    "List your property on Kaa for free. Verified tenants, digital leases, mobile-money rent collection and arrears tracking in Kaa Operators.",
+    "Kaa Field Ops manages your property end to end. We visit, photograph, list, vet tenants on NIDA and collect the rent. You watch it from your phone.",
 };
 
-const features = [
+const watching = [
   {
     icon: <Building2 />,
-    title: "Every unit in one place",
-    body: "Properties, units, occupancy and rent roll across your whole portfolio — not a notebook and three WhatsApp groups.",
+    title: "Every unit, live",
+    body: "What is let, what is empty, what each one earns, and what a vacant month is costing you.",
   },
   {
     icon: <UsersRound />,
-    title: "Tenants with verified identity",
-    body: "Kaa checks a tenant's NIDA before they reach you. You know who is moving in.",
-  },
-  {
-    icon: <FileSignature />,
-    title: "Digital leases",
-    body: "Generate and sign the agreement in the portal. Renewal reminders before the term runs out.",
+    title: "Who is in your building",
+    body: "Name, NIDA verification status, lease dates and contact details for every tenant we placed.",
   },
   {
     icon: <Banknote />,
-    title: "Rent collection and arrears",
-    body: "Invoices raised automatically each period, mobile-money settlement, and a clear list of who has not paid.",
+    title: "Rent as it lands",
+    body: "Each mobile money payment receipted against the lease, with arrears flagged the day they occur.",
   },
   {
-    icon: <CalendarCheck />,
-    title: "Viewings handled for you",
-    body: "Requests from the app get routed to the Kaa agent covering your ward. No more strangers calling at 9pm.",
+    icon: <FileSignature />,
+    title: "Contracts on file",
+    body: "Signed digital leases with witnesses attached, stored where you can still find them in three years.",
   },
   {
     icon: <Wrench />,
-    title: "Maintenance you can see",
-    body: "Tenants log faults with photos. You see what is open, how urgent, and how long it has been sitting.",
+    title: "What is broken",
+    body: "Faults raised by tenants, what Field Ops is doing about them, and what it cost to fix.",
+  },
+  {
+    icon: <Eye />,
+    title: "Nothing to file",
+    body: "No forms, no uploads, no dashboard to maintain. Reading it is the whole of your job.",
   },
 ];
 
@@ -59,134 +64,197 @@ export default function LandlordsPage() {
   return (
     <>
       {/* ── Hero ────────────────────────────────────────────────── */}
-      <section className="kaa-wash border-b border-border">
-        <div className="mx-auto grid w-full max-w-7xl items-center gap-12 px-5 py-20 lg:grid-cols-2 lg:px-8 lg:py-24">
-          <div>
-            <Badge tone="brand" className="mb-5">
-              Kaa Operators
+      <section className="kaa-wash relative overflow-hidden border-b border-border">
+        <div className="grid-lines absolute inset-0 opacity-50" aria-hidden="true" />
+        <div className="shell relative grid items-center gap-16 py-24 lg:grid-cols-[1.05fr_1fr] lg:py-28">
+          <Reveal>
+            <Badge tone="brand" className="mb-6">
+              <Handshake />
+              Managed by Kaa Field Ops
             </Badge>
-            <h1 className="text-balance text-4xl font-semibold leading-tight tracking-tight sm:text-5xl">
-              Fill your units faster. Stop chasing rent.
+            <h1 className="text-balance text-[2.6rem] font-semibold leading-[1.05] tracking-[-0.03em] sm:text-5xl xl:text-6xl">
+              Own the building. Skip the job that comes with it.
             </h1>
-            <p className="mt-5 max-w-xl text-pretty text-lg leading-relaxed text-foreground-muted">
-              Listing on Kaa is free. We photograph and verify your property, put it in front of tenants who
-              have confirmed their identity, and give you a portal to run the tenancy afterwards.
+            <p className="mt-6 max-w-xl text-pretty text-lg leading-relaxed text-foreground-muted">
+              You will not upload a listing, screen a stranger, or chase anybody for rent. A Kaa Field Ops
+              agent visits your property, takes it on, and runs it. Your part is to open the app and see how
+              it is doing.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="mt-9 flex flex-wrap gap-3">
               <ButtonLink href="#list-with-kaa" size="lg">
-                List your property
+                Have an agent visit
               </ButtonLink>
-              <ButtonLink href="/operators" size="lg" variant="outline">
-                See the portal
+              <ButtonLink href="#sign-in" size="lg" variant="outline">
+                <Smartphone />
+                Landlord sign in
               </ButtonLink>
             </div>
-          </div>
+          </Reveal>
 
-          <Card className="p-7">
-            <p className="text-sm font-semibold uppercase tracking-wider text-foreground-subtle">
-              What it costs you
+          <Reveal direction="scale" delay={140}>
+            <Card className="p-8">
+              <p className="text-sm font-semibold uppercase tracking-wider text-foreground-subtle">
+                What it costs you
+              </p>
+              <dl className="mt-6 space-y-4">
+                <Row label="An agent visiting and assessing" value="Free" />
+                <Row label="Photography and geo-tagging" value="Free" />
+                <Row label="Listing and marketing" value="Free" />
+                <Row label="Tenant vetting on NIDA" value="Free" />
+                <Row label="Rent collection and reporting" value="Free" />
+                <Row
+                  label="When Kaa fills the unit"
+                  value="up to 5%"
+                  note="of the first year's rent, charged once"
+                  emphasis
+                />
+              </dl>
+              <p className="mt-7 border-t border-border pt-6 text-sm leading-relaxed text-foreground-muted">
+                You pay only when a unit is actually let. An empty unit costs you nothing on Kaa. It costs
+                you the rent you are not collecting, which is the point.
+              </p>
+            </Card>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ── How the handover works ──────────────────────────────── */}
+      <section className="py-24 lg:py-28">
+        <div className="shell">
+          <Reveal className="max-w-3xl">
+            <p className="text-sm font-semibold uppercase tracking-wider text-kaa-700 dark:text-kaa-400">
+              The handover
             </p>
-            <dl className="mt-5 space-y-4">
-              <Row label="Listing your property" value="Free" />
-              <Row label="Professional photography" value="Free" />
-              <Row label="Verification and geo-tagging" value="Free" />
-              <Row label="Kaa Operators portal" value="Free" />
-              <Row
-                label="When Kaa finds your tenant"
-                value="up to 5%"
-                note="of the first year's rent, charged once"
-                emphasis
-              />
-            </dl>
-            <p className="mt-6 border-t border-border pt-5 text-sm text-foreground-muted">
-              You pay only when a unit is actually filled. An empty unit costs you nothing on Kaa — it just
-              costs you the rent you are not collecting.
+            <h2 className="mt-4 text-balance text-3xl font-semibold tracking-tight sm:text-4xl xl:text-5xl">
+              One visit, and it is off your hands.
+            </h2>
+            <p className="mt-5 text-pretty text-lg leading-relaxed text-foreground-muted">
+              Kaa Field Ops is our property management arm, built together with an established Tanzanian
+              dalali whose people already work these wards. They are the ones who come to you.
             </p>
-          </Card>
+          </Reveal>
+
+          <RevealGroup className="mt-14 grid gap-6 md:grid-cols-2 xl:grid-cols-4" step={110}>
+            <Step
+              n="01"
+              icon={<PhoneCall />}
+              title="You leave a number"
+              body="That is the entire application. A Field Ops supervisor calls to arrange a time that suits you."
+            />
+            <Step
+              n="02"
+              icon={<Camera />}
+              title="An agent comes to the property"
+              body="They meet you, walk the units, photograph every room, pin the gate on GPS and write down the real terms."
+            />
+            <Step
+              n="03"
+              icon={<Fingerprint />}
+              title="We find and vet the tenant"
+              body="Applicants are checked on their 20 digit NIDA number with a selfie and photographs of the card before they ever view."
+            />
+            <Step
+              n="04"
+              icon={<FileSignature />}
+              title="We run the tenancy"
+              body="Digital contract with witnesses, rent collection, arrears, maintenance. You are told, not asked."
+            />
+          </RevealGroup>
         </div>
       </section>
 
       {/* ── The vacancy argument ────────────────────────────────── */}
-      <section className="border-b border-border bg-ink-950 py-20 text-white lg:py-24 dark:bg-ink-900">
-        <div className="mx-auto w-full max-w-7xl px-5 lg:px-8">
-          <div className="grid gap-12 lg:grid-cols-[1fr_1.2fr] lg:items-center">
-            <div>
-              <TrendingDown className="size-7 text-kaa-400" />
-              <h2 className="mt-5 text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
-                An empty month is gone forever.
-              </h2>
-              <p className="mt-4 text-pretty text-lg leading-relaxed text-white/70">
-                A unit at {money(700_000)} a month that sits empty for two months has cost you{" "}
-                {money(1_400_000)} — far more than any facilitation fee. Speed of letting is the number that
-                matters, and it is the number Kaa is built to move.
-              </p>
-            </div>
+      <section className="border-y border-border bg-ink-950 py-24 text-white lg:py-28 dark:bg-ink-900">
+        <div className="shell grid gap-16 lg:grid-cols-[1fr_1.15fr] lg:items-center">
+          <Reveal direction="left">
+            <TrendingDown className="size-8 text-kaa-400" />
+            <h2 className="mt-6 text-balance text-3xl font-semibold tracking-tight sm:text-4xl xl:text-5xl">
+              An empty month never comes back.
+            </h2>
+            <p className="mt-5 text-pretty text-lg leading-relaxed text-white/70">
+              A unit at <span className="tnum">{money(700_000)}</span> a month standing empty for two months
+              has cost you <span className="tnum">{money(1_400_000)}</span>, many times any facilitation fee.
+              Speed of letting is the number that matters, and it is the number Kaa is built to move.
+            </p>
+          </Reveal>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <DarkCard
-                icon={<Camera />}
-                title="Better listings let faster"
-                body="Verified listings with real photos and honest upfront costs get more genuine enquiries and far fewer no-shows."
-              />
-              <DarkCard
-                icon={<ShieldCheck />}
-                title="Fewer wasted viewings"
-                body="Tenants see the deposit and months upfront before they book, so the people who turn up can actually afford it."
-              />
-              <DarkCard
-                icon={<UsersRound />}
-                title="A bigger pool"
-                body="Kaa reaches tenants searching your ward across the whole city, not just the ones who walk past your gate."
-              />
-              <DarkCard
-                icon={<BadgeCheck />}
-                title="Identity checked first"
-                body="NIDA verification happens before a viewing is booked, not after someone has your keys."
-              />
-            </div>
-          </div>
+          <RevealGroup direction="right" className="grid gap-4 sm:grid-cols-2" step={80}>
+            <DarkCard
+              icon={<Camera />}
+              title="Real listings let faster"
+              body="Photographs taken on site and honest upfront costs bring genuine enquiries and far fewer no-shows."
+            />
+            <DarkCard
+              icon={<ShieldCheck />}
+              title="Fewer wasted viewings"
+              body="Tenants see the deposit and months upfront before they book, so whoever turns up can afford it."
+            />
+            <DarkCard
+              icon={<UsersRound />}
+              title="A city-wide pool"
+              body="Kaa reaches tenants searching your ward from anywhere in Dar, plus everyone on the WhatsApp assistant."
+            />
+            <DarkCard
+              icon={<BadgeCheck />}
+              title="Vetted before the keys"
+              body="NIDA verification happens before a viewing is booked, not after somebody is already living there."
+            />
+          </RevealGroup>
         </div>
       </section>
 
-      {/* ── Features ────────────────────────────────────────────── */}
-      <section className="py-20 lg:py-24">
-        <div className="mx-auto w-full max-w-7xl px-5 lg:px-8">
-          <div className="max-w-2xl">
-            <h2 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
-              Everything you need after the tenant signs.
+      {/* ── What you see ────────────────────────────────────────── */}
+      <section id="sign-in" className="py-24 lg:py-28">
+        <div className="shell">
+          <Reveal className="max-w-3xl">
+            <h2 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl xl:text-5xl">
+              What you actually see.
             </h2>
-            <p className="mt-4 text-lg text-foreground-muted">
-              Kaa Operators is the back office — free, in your browser, on any device.
+            <p className="mt-5 text-lg text-foreground-muted">
+              Sign in on the web or open the Kaa app. Same portfolio, same numbers, read only by design.
             </p>
-          </div>
+          </Reveal>
 
-          <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {features.map((feature) => (
-              <Card key={feature.title} className="p-6">
-                <span className="flex size-10 items-center justify-center rounded-xl bg-kaa-50 text-kaa-700 dark:bg-kaa-950 dark:text-kaa-400 [&_svg]:size-5">
-                  {feature.icon}
+          <RevealGroup className="mt-14 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {watching.map((item) => (
+              <Card key={item.title} interactive className="h-full p-7">
+                <span className="flex size-11 items-center justify-center rounded-xl bg-kaa-50 text-kaa-700 dark:bg-kaa-950 dark:text-kaa-400 [&_svg]:size-5">
+                  {item.icon}
                 </span>
-                <h3 className="mt-4 font-semibold tracking-tight">{feature.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-foreground-muted">{feature.body}</p>
+                <h3 className="mt-5 text-lg font-semibold tracking-tight">{item.title}</h3>
+                <p className="mt-2.5 text-sm leading-relaxed text-foreground-muted">{item.body}</p>
               </Card>
             ))}
-          </div>
+          </RevealGroup>
+
+          <Reveal className="mt-12">
+            <div className="flex flex-wrap gap-3">
+              <ButtonLink href="/app" size="lg">
+                <Smartphone />
+                Open the Kaa app
+              </ButtonLink>
+              <ButtonLink href="/operators" size="lg" variant="outline">
+                Sign in on the web
+              </ButtonLink>
+            </div>
+          </Reveal>
         </div>
       </section>
 
       {/* ── Getting started ─────────────────────────────────────── */}
-      <section id="list-with-kaa" className="border-t border-border bg-surface py-20 lg:py-24">
-        <div className="mx-auto w-full max-w-3xl px-5 text-center lg:px-8">
-          <h2 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
-            Leave your number. An agent comes to you.
-          </h2>
-          <p className="mx-auto mt-4 max-w-xl text-pretty text-lg text-foreground-muted">
-            A Kaa field agent visits, photographs the property, records the details and sets up your
-            Operators account. It takes about an hour and costs nothing.
-          </p>
-          <div className="mx-auto mt-9 max-w-xl text-left">
-            <WaitlistForm />
-          </div>
+      <section id="list-with-kaa" className="border-t border-border bg-surface py-24 lg:py-28">
+        <div className="shell">
+          <Reveal className="mx-auto max-w-2xl text-center">
+            <h2 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl xl:text-5xl">
+              Leave your number. An agent comes to you.
+            </h2>
+            <p className="mx-auto mt-5 max-w-xl text-pretty text-lg text-foreground-muted">
+              About an hour of your time, once. After that the property is managed and you are a spectator.
+            </p>
+            <div className="mx-auto mt-10 max-w-xl text-left">
+              <WaitlistForm defaultRole="landlord" />
+            </div>
+          </Reveal>
         </div>
       </section>
     </>
@@ -215,14 +283,39 @@ function Row({
   );
 }
 
+function Step({
+  n,
+  icon,
+  title,
+  body,
+}: {
+  n: string;
+  icon: React.ReactNode;
+  title: string;
+  body: string;
+}) {
+  return (
+    <Card interactive className="group h-full p-7">
+      <div className="flex items-center justify-between">
+        <span className="flex size-11 items-center justify-center rounded-xl bg-kaa-50 text-kaa-700 transition-transform duration-500 group-hover:scale-110 dark:bg-kaa-950 dark:text-kaa-400 [&_svg]:size-5">
+          {icon}
+        </span>
+        <span className="tnum text-sm font-semibold text-foreground-subtle">{n}</span>
+      </div>
+      <h3 className="mt-5 text-lg font-semibold tracking-tight">{title}</h3>
+      <p className="mt-2.5 text-sm leading-relaxed text-foreground-muted">{body}</p>
+    </Card>
+  );
+}
+
 function DarkCard({ icon, title, body }: { icon: React.ReactNode; title: string; body: string }) {
   return (
-    <div className="rounded-card border border-white/10 bg-white/5 p-5">
-      <span className="flex size-9 items-center justify-center rounded-lg bg-kaa-500/15 text-kaa-400 [&_svg]:size-4">
+    <div className="h-full rounded-card border border-white/10 bg-white/5 p-6 transition-colors hover:border-kaa-400/40 hover:bg-white/[0.07]">
+      <span className="flex size-10 items-center justify-center rounded-lg bg-kaa-500/15 text-kaa-400 [&_svg]:size-4">
         {icon}
       </span>
-      <h3 className="mt-3.5 text-sm font-semibold tracking-tight">{title}</h3>
-      <p className="mt-1.5 text-sm leading-relaxed text-white/65">{body}</p>
+      <h3 className="mt-4 font-semibold tracking-tight">{title}</h3>
+      <p className="mt-2 text-sm leading-relaxed text-white/65">{body}</p>
     </div>
   );
 }

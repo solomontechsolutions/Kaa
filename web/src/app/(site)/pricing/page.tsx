@@ -25,13 +25,13 @@ export default function PricingPage() {
   return (
     <>
       <section className="kaa-wash border-b border-border">
-        <div className="mx-auto w-full max-w-4xl px-5 py-20 text-center lg:px-8 lg:py-24">
+        <div className="shell py-24 text-center lg:py-28">
           <h1 className="text-balance text-4xl font-semibold leading-tight tracking-tight sm:text-5xl">
             No viewing fees. Not now, not ever.
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-pretty text-lg leading-relaxed text-foreground-muted">
             The informal market charges you to look at a house. Kaa charges one subscription a year and
-            nothing else — the whole point is that finding a home should not be a series of small payments
+            nothing else. The whole point is that finding a home should not be a series of small payments
             to strangers.
           </p>
         </div>
@@ -39,7 +39,7 @@ export default function PricingPage() {
 
       {/* ── Plans ───────────────────────────────────────────────── */}
       <section className="py-20 lg:py-24">
-        <div className="mx-auto grid w-full max-w-5xl gap-6 px-5 md:grid-cols-2 lg:px-8">
+        <div className="shell grid gap-6 md:grid-cols-2">
           <Card className="flex flex-col p-8">
             <Badge tone="brand" className="self-start">
               Tenants
@@ -49,7 +49,7 @@ export default function PricingPage() {
             </p>
             <p className="mt-1 text-foreground-muted">per year</p>
             <p className="mt-5 text-sm leading-relaxed text-foreground-muted">
-              Roughly what one dalali charges to open a single gate — except this covers the whole search,
+              Roughly what one dalali charges to open a single gate, except this covers the whole search,
               for a year.
             </p>
             <ul className="mt-7 flex-1 space-y-3">
@@ -104,7 +104,7 @@ export default function PricingPage() {
 
       {/* ── Comparison ──────────────────────────────────────────── */}
       <section className="border-y border-border bg-surface py-20 lg:py-24">
-        <div className="mx-auto w-full max-w-4xl px-5 lg:px-8">
+        <div className="shell">
           <h2 className="text-balance text-center text-3xl font-semibold tracking-tight">
             What each side gets
           </h2>
@@ -140,12 +140,12 @@ export default function PricingPage() {
 
       {/* ── FAQ ─────────────────────────────────────────────────── */}
       <section className="py-20 lg:py-24">
-        <div className="mx-auto w-full max-w-3xl px-5 lg:px-8">
+        <div className="shell">
           <h2 className="text-balance text-3xl font-semibold tracking-tight">Questions people ask</h2>
           <dl className="mt-10 space-y-8">
             <Faq
               q="Do I pay anything to view a house?"
-              a="No. Viewings are included in the subscription, however many you book. If anyone asks you for a viewing fee on a Kaa property, report it in the app — that agent will be removed."
+              a="No. Viewings are included in the subscription, however many you book. If anyone asks you for a viewing fee on a Kaa property, report it in the app, that agent will be removed."
             />
             <Faq
               q="Does Kaa take a cut of my rent?"
@@ -157,7 +157,7 @@ export default function PricingPage() {
             />
             <Faq
               q="Can I pay the subscription by mobile money?"
-              a="Yes — M-Pesa, Tigo Pesa, Airtel Money or Halopesa. The provider's transaction fee is shown before you confirm."
+              a="Yes. M-Pesa, Tigo Pesa, Airtel Money or Halopesa. The provider's transaction fee is shown before you confirm."
             />
             <Faq
               q="What if I do not find a house?"

@@ -6,9 +6,9 @@ export const metadata: Metadata = { title: "Privacy" };
 
 export default function PrivacyPage() {
   return (
-    <div className="mx-auto w-full max-w-3xl px-5 py-20 lg:px-8">
+    <div className="shell py-24 lg:py-28">
       <Badge tone="warning" className="mb-5">
-        Draft — pending legal review
+        Draft, pending legal review
       </Badge>
       <h1 className="text-4xl font-semibold tracking-tight">Privacy</h1>
       <p className="mt-5 text-lg leading-relaxed text-foreground-muted">
@@ -23,7 +23,7 @@ export default function PrivacyPage() {
           the entire point of the product.
         </li>
         <li>
-          NIDA details are used to verify identity and are not shown to landlords or other tenants — only the
+          NIDA details are used to verify identity and are not shown to landlords or other tenants. Only the
           verification result is.
         </li>
         <li>

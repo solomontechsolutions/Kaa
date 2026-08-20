@@ -3,11 +3,11 @@
 **Stay. Settle. Belong.**
 
 Kaa is Tanzania's rental platform. It connects people to verified rental homes directly from
-landlords — removing the informal broker layer that currently charges tenants to view houses that are
+landlords, removing the informal broker layer that currently charges tenants to view houses that are
 often already let, misrepresented, or do not exist.
 
 Roughly half of Dar es Salaam's households rent, and almost all of them find a home the same way: a
-phone number, a broker, a fee, and hope. Kaa replaces that with listings that carry proof — a GPS pin
+phone number, a broker, a fee, and hope. Kaa replaces that with listings that carry proof, a GPS pin
 taken on site, photographs from that day, a landlord who confirmed the terms, and the real upfront
 cost stated before anyone travels across the city.
 
@@ -32,15 +32,15 @@ The two portals are route groups today so everything ships as one deployment. Th
 ## Stack
 
 - **Next.js 16** (App Router, Turbopack) · **React 19** · **TypeScript**
-- **Tailwind CSS v4** — Kaa design tokens defined in `web/src/app/globals.css`
-- **Supabase** — Postgres + PostGIS, phone-OTP auth, storage, row level security
+- **Tailwind CSS v4**, Kaa design tokens defined in `web/src/app/globals.css`
+- **Supabase**, Postgres + PostGIS, phone-OTP auth, storage, row level security
 - **Recharts** for operator analytics · **lucide-react** for iconography
-- **Poppins** via `next/font` — the brand typeface
+- **Poppins** via `next/font`, the brand typeface
 
 ### Running Kaa without Supabase
 
 Supabase credentials are optional. With none configured, every surface resolves against the seed
-dataset in `web/src/lib/data/seed.ts` — realistic Dar es Salaam properties, wards, rents, leases,
+dataset in `web/src/lib/data/seed.ts`, realistic Dar es Salaam properties, wards, rents, leases,
 agents and submissions. Pages never touch a data source directly; they read through
 `web/src/lib/data/queries.ts`, so swapping the seed for live Supabase queries changes one module.
 
@@ -99,17 +99,17 @@ npx --prefix web tsc --noEmit
 The schema lives in [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql). The
 pieces that matter:
 
-- **Geography** — Tanzania's region → district → ward hierarchy. A ward is the unit of an agent's
+- **Geography**, Tanzania's region → district → ward hierarchy. A ward is the unit of an agent's
   zone and of hyperlocal search.
-- **Organizations** — the tenancy boundary for Operators. An individual landlord with two units and a
+- **Organizations**, the tenancy boundary for Operators. An individual landlord with two units and a
   manager with two hundred both get one.
-- **Properties → units → media** — a unit carries `advance_months` alongside rent, because months
+- **Properties → units → media**, a unit carries `advance_months` alongside rent, because months
   demanded upfront is the number Tanzanian tenants actually get ambushed with.
-- **Listing submissions** — the Field Ops → Operators review pipeline, carrying the GPS fix, its
+- **Listing submissions**, the Field Ops → Operators review pipeline, carrying the GPS fix, its
   accuracy, and the capture timestamp as evidence.
-- **Agent earnings** — a ledger, not a balance. TZS 2,000 per verified listing and TZS 5,000 per
+- **Agent earnings**, a ledger, not a balance. TZS 2,000 per verified listing and TZS 5,000 per
   rental match, per the FieldOps agreement.
-- **Leases, invoices, payments** — mobile money settlement with the provider fee recorded separately
+- **Leases, invoices, payments**, mobile money settlement with the provider fee recorded separately
   so it can be shown rather than buried.
 
 Row level security is enabled on every table with a default-deny posture. Reference data is
@@ -122,7 +122,7 @@ read their own earnings but never write them.
 
 | Stream | Detail |
 |---|---|
-| Tenant subscription | TZS 10,000 per year — the only thing a tenant pays Kaa |
+| Tenant subscription | TZS 10,000 per year, the only thing a tenant pays Kaa |
 | Facilitation fee | Up to 5% of first-year rent, charged to the landlord once, only on a tenancy Kaa sourced |
 | Premium listings | Enhanced placement for landlords (planned) |
 | Value-added services | Tenant screening, document verification, rental insurance (planned) |
@@ -133,7 +133,7 @@ read their own earnings but never write them.
 
 Built and working:
 
-- Full design system on the Kaa brand — tokens, primitives, status vocabulary, light and dark
+- Full design system on the Kaa brand, tokens, primitives, status vocabulary, light and dark
 - Public marketing site: home, how it works, landlords, field ops, pricing, about, legal
 - Kaa Operators: dashboard with collections trend, properties and property detail, listings and
   approval queue, tenants, leases, rent and payments with arrears, viewings, maintenance, field agent
@@ -146,7 +146,7 @@ Not yet built:
 
 - Authentication (phone OTP through Supabase) and role-based route protection
 - Live Supabase queries behind the data layer, replacing the seed dataset
-- Mobile money integration and NIDA verification — both stubbed in `.env.example`
+- Mobile money integration and NIDA verification, both stubbed in `.env.example`
 - Write paths: the forms render and validate but do not persist yet
 - WhatsApp onboarding funnel; Kiswahili translation layer (copy is English, `sw` is the HTML default)
 
@@ -164,11 +164,11 @@ Not yet built:
 | Typeface | Poppins |
 
 The mark is a crab: two claws for protection, an arch for shelter, two dots for the people at the
-centre. In Kiswahili *kaa* means both "crab" and "to stay, to settle" — the logo holds both readings.
+centre. In Kiswahili *kaa* means both "crab" and "to stay, to settle", the logo holds both readings.
 
 Source of truth: [`brand/Kaa Logo Brand Design.png`](brand/).
 
 > The mark in `web/src/components/brand/logo.tsx` is a **hand-traced SVG
-> approximation** of the brand PNG — close, but not the original artwork. It is
+> approximation** of the brand PNG, close, but not the original artwork. It is
 > vector so it scales and recolours for dark mode, which a PNG cannot. Drop the
 > designer's original SVG or AI export into that component when it is available.

@@ -1,5 +1,5 @@
 /**
- * Seed dataset — Dar es Salaam.
+ * Seed dataset, Dar es Salaam.
  *
  * Kaa runs against Supabase in production. This dataset backs the app when no
  * Supabase credentials are configured, so Operators and Field Ops are fully
@@ -284,7 +284,7 @@ export const properties: Property[] = [
 ];
 
 export const units: Unit[] = [
-  // Bahari Court — Mikocheni
+  // Bahari Court, Mikocheni
   {
     id: "unit-bc-a1", propertyId: "prop-bahari-court", label: "A1",
     bedrooms: 2, bathrooms: 2, sizeSqm: 96, floor: 0, furnishing: "semi_furnished",
@@ -505,7 +505,7 @@ export const submissions: ListingSubmission[] = [
     unitsCount: 5, proposedRent: 120_000, photoCount: 6,
     capturedAt: day(-24), gpsAccuracyM: 18.4, latitude: -6.6901, longitude: 39.2288,
     status: "rejected", submittedAt: day(-24), reviewedAt: day(-22),
-    reviewNotes: "GPS accuracy 18m — pin lands on the wrong plot. Landlord could not produce proof of ownership.",
+    reviewNotes: "GPS accuracy 18m. The pin lands on the wrong plot. Landlord could not produce proof of ownership.",
   },
   {
     id: "sub-6", reference: "KAA-SUB-2026-00190", agentId: "agent-hamisi", agentName: "Hamisi Mwakalinga",
@@ -547,13 +547,13 @@ const LISTING_FEE = 2_000;
 const MATCH_BONUS = 5_000;
 
 export const agentEarnings: AgentEarning[] = [
-  { id: "earn-1", agentId: "agent-hamisi", kind: "listing_verified", amount: LISTING_FEE * 8, status: "paid", submissionRef: "KAA-SUB-2026-00169", note: "Bahari Court — 8 units verified", earnedAt: day(-12), paidAt: day(-5) },
-  { id: "earn-2", agentId: "agent-hamisi", kind: "rental_match", amount: MATCH_BONUS, status: "paid", note: "Bahari Court A1 — tenant moved in", earnedAt: day(-9), paidAt: day(-5) },
-  { id: "earn-3", agentId: "agent-hamisi", kind: "rental_match", amount: MATCH_BONUS, status: "paid", note: "Bahari Court B1 — tenant moved in", earnedAt: day(-8), paidAt: day(-5) },
-  { id: "earn-4", agentId: "agent-hamisi", kind: "bonus", amount: 25_000, status: "paid", note: "October tier 2 — 20+ verified listings", earnedAt: day(-6), paidAt: day(-5) },
+  { id: "earn-1", agentId: "agent-hamisi", kind: "listing_verified", amount: LISTING_FEE * 8, status: "paid", submissionRef: "KAA-SUB-2026-00169", note: "Bahari Court, 8 units verified", earnedAt: day(-12), paidAt: day(-5) },
+  { id: "earn-2", agentId: "agent-hamisi", kind: "rental_match", amount: MATCH_BONUS, status: "paid", note: "Bahari Court A1, tenant moved in", earnedAt: day(-9), paidAt: day(-5) },
+  { id: "earn-3", agentId: "agent-hamisi", kind: "rental_match", amount: MATCH_BONUS, status: "paid", note: "Bahari Court B1, tenant moved in", earnedAt: day(-8), paidAt: day(-5) },
+  { id: "earn-4", agentId: "agent-hamisi", kind: "bonus", amount: 25_000, status: "paid", note: "October tier 2, 20+ verified listings", earnedAt: day(-6), paidAt: day(-5) },
   { id: "earn-5", agentId: "agent-hamisi", kind: "listing_verified", amount: LISTING_FEE * 4, status: "approved", submissionRef: "KAA-SUB-2026-00181", note: "Mikocheni Light Industrial Flats", earnedAt: day(-3) },
-  { id: "earn-6", agentId: "agent-hamisi", kind: "listing_verified", amount: LISTING_FEE * 6, status: "accrued", submissionRef: "KAA-SUB-2026-00184", note: "Kawe Beach Apartments — awaiting review", earnedAt: day(-1) },
-  { id: "earn-7", agentId: "agent-hamisi", kind: "rental_match", amount: MATCH_BONUS, status: "accrued", note: "Msasani Villa 2 — viewing converted", earnedAt: day(-1) },
+  { id: "earn-6", agentId: "agent-hamisi", kind: "listing_verified", amount: LISTING_FEE * 6, status: "accrued", submissionRef: "KAA-SUB-2026-00184", note: "Kawe Beach Apartments, awaiting review", earnedAt: day(-1) },
+  { id: "earn-7", agentId: "agent-hamisi", kind: "rental_match", amount: MATCH_BONUS, status: "accrued", note: "Msasani Villa 2, viewing converted", earnedAt: day(-1) },
 ];
 
 // ── Tenants, leases, invoices, payments ────────────────────────────────

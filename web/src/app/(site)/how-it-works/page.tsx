@@ -6,14 +6,14 @@ import { Badge, ButtonLink, Card } from "@/components/ui";
 export const metadata: Metadata = {
   title: "How it works",
   description:
-    "How a Kaa listing gets verified — GPS pinned on site, photographed the same day, confirmed with the landlord, and costs stated before you travel.",
+    "How a Kaa listing gets verified, GPS pinned on site, photographed the same day, confirmed with the landlord, and costs stated before you travel.",
 };
 
 const pipeline = [
   {
     icon: <Crosshair />,
     title: "A field agent stands at the gate",
-    body: "Kaa agents work assigned wards. They take a GPS pin on site, with the phone's accuracy recorded alongside it. Anything above 10 metres is rejected — at that distance a pin can land on the neighbouring plot, which is how tenants end up at the wrong house.",
+    body: "Kaa agents work assigned wards. They take a GPS pin on site, with the phone's accuracy recorded alongside it. Anything above 10 metres is rejected, at that distance a pin can land on the neighbouring plot, which is how tenants end up at the wrong house.",
   },
   {
     icon: <Camera />,
@@ -28,7 +28,7 @@ const pipeline = [
   {
     icon: <ScrollText />,
     title: "The real cost is written down",
-    body: "Months upfront, deposit, and what utilities cost. In Tanzania the advance is often six to twelve months — that number belongs on the listing, not sprung on you at the gate after you have travelled across the city.",
+    body: "Months upfront, deposit, and what utilities cost. In Tanzania the advance is often six to twelve months, that number belongs on the listing, not sprung on you at the gate after you have travelled across the city.",
   },
   {
     icon: <BadgeCheck />,
@@ -41,7 +41,7 @@ export default function HowItWorksPage() {
   return (
     <>
       <section className="kaa-wash border-b border-border">
-        <div className="mx-auto w-full max-w-4xl px-5 py-20 lg:px-8 lg:py-24">
+        <div className="shell py-24 lg:py-28">
           <Badge tone="brand" className="mb-5">
             For tenants
           </Badge>
@@ -57,7 +57,7 @@ export default function HowItWorksPage() {
 
       {/* ── Verification pipeline ───────────────────────────────── */}
       <section className="py-20 lg:py-24">
-        <div className="mx-auto w-full max-w-4xl px-5 lg:px-8">
+        <div className="shell">
           <ol className="space-y-10">
             {pipeline.map((step, i) => (
               <li key={step.title} className="flex gap-5 sm:gap-7">
@@ -82,7 +82,7 @@ export default function HowItWorksPage() {
 
       {/* ── What gets rejected ──────────────────────────────────── */}
       <section className="border-y border-border bg-surface py-20 lg:py-24">
-        <div className="mx-auto w-full max-w-4xl px-5 lg:px-8">
+        <div className="shell">
           <h2 className="text-balance text-3xl font-semibold tracking-tight">
             What we throw out.
           </h2>
@@ -110,7 +110,7 @@ export default function HowItWorksPage() {
 
       {/* ── Then what ───────────────────────────────────────────── */}
       <section className="py-20 lg:py-24">
-        <div className="mx-auto w-full max-w-4xl px-5 lg:px-8">
+        <div className="shell">
           <h2 className="text-balance text-3xl font-semibold tracking-tight">Once you find a place.</h2>
 
           <div className="mt-8 grid gap-5 sm:grid-cols-3">
@@ -118,7 +118,7 @@ export default function HowItWorksPage() {
               <Search className="size-5 text-kaa-600 dark:text-kaa-400" />
               <h3 className="mt-3.5 font-semibold tracking-tight">Book a viewing</h3>
               <p className="mt-2 text-sm leading-relaxed text-foreground-muted">
-                Choose a slot in the app or over WhatsApp. A Kaa agent meets you at the property — you are
+                Choose a slot in the app or over WhatsApp. A Kaa agent meets you at the property, so you are
                 never sent to a stranger&rsquo;s gate alone.
               </p>
             </Card>

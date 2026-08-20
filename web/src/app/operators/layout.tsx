@@ -19,7 +19,7 @@ import { SidebarLink, TabLink } from "@/components/shell/nav-link";
 import { Avatar, Badge, Input } from "@/components/ui";
 import { currentOrg, operatorOverview } from "@/lib/data/queries";
 
-/** The portals are working tools, not marketing surfaces — keep them out of search. */
+/** The portals are working tools, not marketing surfaces, keep them out of search. */
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };

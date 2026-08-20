@@ -93,7 +93,7 @@ export default function TenantsPage() {
                         <StatusBadge kind="lease" value={tenant.lease.status} />
                       </>
                     ) : (
-                      <span className="text-sm text-foreground-subtle">—</span>
+                      <span className="text-sm text-foreground-subtle">-</span>
                     )}
                   </Td>
                   <Td>

@@ -22,7 +22,7 @@ export default function ListingsPage() {
     <>
       <PageHeader
         title="Listings"
-        description="What tenants see on the Kaa app — and what is waiting on your approval."
+        description="What tenants see on the Kaa app, and what is waiting on your approval."
       />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -122,10 +122,10 @@ export default function ListingsPage() {
                   </Td>
                   <Td className="tnum text-right font-medium">{money(unit.rentAmount)}</Td>
                   <Td className="tnum text-right text-sm text-foreground-muted">
-                    {unit.viewCount ? unit.viewCount.toLocaleString() : "—"}
+                    {unit.viewCount ? unit.viewCount.toLocaleString() : "-"}
                   </Td>
                   <Td className="text-sm text-foreground-muted">
-                    {unit.availableFrom ? date(unit.availableFrom) : "—"}
+                    {unit.availableFrom ? date(unit.availableFrom) : "-"}
                   </Td>
                   <Td>
                     <StatusBadge kind="listing" value={unit.listingState} />
@@ -136,7 +136,7 @@ export default function ListingsPage() {
         </Table>
         {paused.length > 0 && (
           <div className="border-t border-border px-5 py-3 text-xs text-foreground-subtle">
-            {paused.length} listing{paused.length > 1 ? "s" : ""} paused — reserved or temporarily withdrawn.
+            {paused.length} listing{paused.length > 1 ? "s" : ""} paused, reserved or temporarily withdrawn.
           </div>
         )}
       </Card>

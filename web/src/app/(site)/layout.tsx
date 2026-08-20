@@ -6,7 +6,8 @@ import { ButtonLink } from "@/components/ui";
 
 const nav = [
   { href: "/how-it-works", label: "How it works" },
-  { href: "/landlords", label: "For landlords" },
+  { href: "/landlords", label: "Landlords" },
+  { href: "/whatsapp", label: "WhatsApp" },
   { href: "/field-ops", label: "Field Ops" },
   { href: "/pricing", label: "Pricing" },
 ];
@@ -14,18 +15,18 @@ const nav = [
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="sticky top-0 z-40 border-b border-border/70 bg-background/80 backdrop-blur-xl">
-        <div className="mx-auto flex h-18 w-full max-w-7xl items-center gap-8 px-5 lg:px-8">
+      <header className="sticky top-0 z-40 border-b border-border/60 bg-background/75 backdrop-blur-xl">
+        <div className="shell flex h-18 items-center gap-10">
           <Link href="/" aria-label="Kaa home">
             <KaaWordmark />
           </Link>
 
-          <nav className="hidden items-center gap-1 md:flex">
+          <nav className="hidden items-center gap-1 lg:flex">
             {nav.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="rounded-lg px-3 py-2 text-sm font-medium text-foreground-muted transition-colors hover:bg-surface hover:text-foreground"
+                className="relative rounded-lg px-3 py-2 text-sm font-medium text-foreground-muted transition-colors after:absolute after:inset-x-3 after:-bottom-px after:h-px after:origin-left after:scale-x-0 after:bg-kaa-500 after:transition-transform after:duration-300 hover:text-foreground hover:after:scale-x-100"
               >
                 {item.label}
               </Link>
@@ -34,13 +35,13 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
 
           <div className="ml-auto flex items-center gap-2">
             <Link
-              href="/operators"
+              href="/landlords#sign-in"
               className="hidden rounded-lg px-3 py-2 text-sm font-medium text-foreground-muted transition-colors hover:text-foreground sm:block"
             >
-              Sign in
+              Landlord sign in
             </Link>
-            <ButtonLink href="#get-the-app" size="sm">
-              Get the app
+            <ButtonLink href="/app" size="sm">
+              Open Kaa
             </ButtonLink>
           </div>
         </div>
@@ -48,15 +49,14 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
 
       <main className="flex-1">{children}</main>
 
-      {/* ── Footer ──────────────────────────────────────────────── */}
       <footer className="border-t border-border bg-surface">
-        <div className="mx-auto w-full max-w-7xl px-5 py-14 lg:px-8">
-          <div className="grid gap-10 md:grid-cols-[1.5fr_1fr_1fr_1fr]">
+        <div className="shell py-16">
+          <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-[1.6fr_1fr_1fr_1fr]">
             <div>
-              <KaaWordmark showTagline />
-              <p className="mt-4 max-w-xs text-sm leading-relaxed text-foreground-muted">
-                Tanzania&rsquo;s rental platform. Verified homes, direct from landlords — no dalali fees, no
-                guesswork.
+              <KaaWordmark showTagline animated />
+              <p className="mt-5 max-w-xs text-sm leading-relaxed text-foreground-muted">
+                Tanzania&rsquo;s managed rental platform. Every property visited, verified and run by Kaa
+                Field Ops. Every tenant vetted on NIDA.
               </p>
               <p className="mt-4 text-sm text-foreground-subtle">Dar es Salaam, Tanzania</p>
             </div>
@@ -65,16 +65,17 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
               title="Product"
               links={[
                 { href: "/how-it-works", label: "How it works" },
+                { href: "/whatsapp", label: "WhatsApp assistant" },
                 { href: "/pricing", label: "Pricing" },
-                { href: "/landlords", label: "For landlords" },
-                { href: "/field-ops", label: "Become an agent" },
+                { href: "/app", label: "Open the app" },
               ]}
             />
             <FooterColumn
-              title="Sign in"
+              title="Partners"
               links={[
-                { href: "/operators", label: "Kaa Operators" },
-                { href: "/field", label: "Kaa Field Ops" },
+                { href: "/landlords", label: "For landlords" },
+                { href: "/field-ops", label: "Become an agent" },
+                { href: "/operators", label: "Operator sign in" },
               ]}
             />
             <FooterColumn
@@ -87,11 +88,11 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
             />
           </div>
 
-          <div className="mt-12 flex flex-wrap items-center justify-between gap-4 border-t border-border pt-6">
+          <div className="mt-14 flex flex-wrap items-center justify-between gap-4 border-t border-border pt-7">
             <p className="text-sm text-foreground-subtle">
-              © {new Date().getFullYear()} Kaa. All rights reserved.
+              © <span className="tnum">{new Date().getFullYear()}</span> Kaa. All rights reserved.
             </p>
-            <p className="flex items-center gap-1.5 text-sm text-foreground-subtle">
+            <p className="flex items-center gap-2 text-sm text-foreground-subtle">
               <KaaMark className="size-4 text-kaa-500" />
               Stay. Settle. Belong.
             </p>
@@ -114,7 +115,7 @@ function FooterColumn({ title, links }: { title: string; links: { href: string; 
               className="group inline-flex items-center gap-1 text-sm text-foreground-muted transition-colors hover:text-foreground"
             >
               {link.label}
-              <ArrowUpRight className="size-3 opacity-0 transition-opacity group-hover:opacity-100" />
+              <ArrowUpRight className="size-3 -translate-x-1 opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100" />
             </Link>
           </li>
         ))}

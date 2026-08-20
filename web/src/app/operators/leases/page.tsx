@@ -9,7 +9,7 @@ import { date, money, relative } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Leases" };
 
-/** Days until a lease ends — negative once it has passed. */
+/** Days until a lease ends, negative once it has passed. */
 function daysLeft(endDate: string) {
   return Math.round((new Date(endDate).getTime() - Date.now()) / 864e5);
 }

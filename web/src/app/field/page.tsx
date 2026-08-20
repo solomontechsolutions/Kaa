@@ -184,7 +184,7 @@ export default function FieldTodayPage() {
         </CardHeader>
         <CardBody className="pt-3">
           <p className="text-sm text-foreground-muted">
-            Saturate a few wards before spreading out — density is what makes Kaa useful to tenants.
+            Saturate a few wards before spreading out. Density is what makes Kaa useful to tenants.
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
             {wardNames.map((ward) => (

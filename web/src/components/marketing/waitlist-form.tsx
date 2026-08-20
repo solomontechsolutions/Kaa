@@ -12,9 +12,9 @@ type Role = "tenant" | "landlord" | "agent";
  * Waitlist capture. Posts to `/api/waitlist`, which writes to the `waitlist`
  * table when Supabase is configured and logs otherwise.
  */
-export function WaitlistForm() {
+export function WaitlistForm({ defaultRole = "tenant" }: { defaultRole?: Role } = {}) {
   const [phone, setPhone] = React.useState("");
-  const [role, setRole] = React.useState<Role>("tenant");
+  const [role, setRole] = React.useState<Role>(defaultRole);
   const [state, setState] = React.useState<"idle" | "sending" | "done" | "error">("idle");
   const [message, setMessage] = React.useState<string | null>(null);
 
@@ -85,7 +85,7 @@ export function WaitlistForm() {
 
       {message && <p className="text-sm text-[var(--color-danger)]">{message}</p>}
       <p className="text-xs text-foreground-subtle">
-        We only message you about Kaa. No sharing your number with brokers — that is the whole point.
+        We only message you about Kaa. No sharing your number with brokers. That is the whole point.
       </p>
     </form>
   );

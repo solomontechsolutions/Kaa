@@ -1,7 +1,7 @@
 /**
  * Kaa UI primitives.
  *
- * Deliberately small and server-renderable — nothing here needs a client
+ * Deliberately small and server-renderable, nothing here needs a client
  * boundary. Interactive pieces live beside the surfaces that need them.
  */
 
@@ -120,7 +120,7 @@ export function Badge({
   return <span className={cn(badgeVariants({ tone }), className)} {...props} />;
 }
 
-/** A small coloured dot — pairs with Badge for status rows. */
+/** A small coloured dot, pairs with Badge for status rows. */
 export function Dot({ tone = "neutral", className }: { tone?: string; className?: string }) {
   const colors: Record<string, string> = {
     neutral: "bg-ink-400",

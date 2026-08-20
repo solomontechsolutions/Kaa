@@ -2,7 +2,7 @@
  * Domain types for Kaa.
  *
  * These mirror `supabase/migrations/0001_init.sql`. When the schema moves,
- * these move with it — they are the contract every surface reads through.
+ * these move with it, they are the contract every surface reads through.
  */
 
 export type AppRole =
@@ -114,7 +114,7 @@ export interface Unit {
   rentAmount: number;
   rentPeriod: "month" | "quarter" | "year";
   depositMonths: number;
-  /** Months of rent demanded upfront — the number tenants get ambushed with. */
+  /** Months of rent demanded upfront, the number tenants get ambushed with. */
   advanceMonths: number;
   status: UnitStatus;
   listingState: ListingState;

@@ -1,32 +1,35 @@
 import type { Metadata, Viewport } from "next";
-import { Poppins } from "next/font/google";
 import "./globals.css";
 
-const poppins = Poppins({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-poppins",
-  display: "swap",
-});
-
 export const metadata: Metadata = {
-  metadataBase: new URL("https://kaa.co.tz"),
+  metadataBase: new URL("https://kaatz.vercel.app"),
   title: {
-    default: "Kaa — Stay. Settle. Belong.",
+    default: "Kaa, Tanzania's managed rental platform",
     template: "%s · Kaa",
   },
   description:
-    "Kaa is Tanzania's rental platform. Verified homes, direct from landlords — no dalali fees, no guesswork. Nyumba zilizothibitishwa, moja kwa moja kutoka kwa mwenye nyumba.",
+    "Kaa Field Ops visits, verifies and manages every property. Tenants are vetted by NIDA and sign digital contracts. Landlords simply watch their portfolio.",
+  applicationName: "Kaa",
   keywords: [
-    "rent in Tanzania", "nyumba za kupanga", "Dar es Salaam rentals",
-    "kupanga nyumba", "verified rentals Tanzania", "Kaa",
+    "rent in Tanzania",
+    "nyumba za kupanga",
+    "Dar es Salaam rentals",
+    "kupanga nyumba",
+    "property management Tanzania",
+    "Kaa",
   ],
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    title: "Kaa",
+    statusBarStyle: "black-translucent",
+  },
   openGraph: {
     type: "website",
     locale: "sw_TZ",
     siteName: "Kaa",
-    title: "Kaa — Stay. Settle. Belong.",
-    description: "Verified rental homes across Tanzania, direct from landlords.",
+    title: "Kaa, Tanzania's managed rental platform",
+    description: "Verified homes, managed end to end. Stay. Settle. Belong.",
   },
   robots: { index: true, follow: true },
 };
@@ -38,11 +41,12 @@ export const viewport: Viewport = {
   ],
   width: "device-width",
   initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="sw" className={poppins.variable} suppressHydrationWarning>
+    <html lang="sw" suppressHydrationWarning>
       <body className="min-h-dvh antialiased">{children}</body>
     </html>
   );

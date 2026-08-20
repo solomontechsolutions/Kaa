@@ -195,7 +195,7 @@ export default function OperatorsDashboard() {
                     {overview.expiringSoon.length} lease{overview.expiringSoon.length > 1 ? "s" : ""} ending soon
                   </span>
                   <span className="block text-xs text-foreground-subtle">
-                    Earliest {date(overview.expiringSoon[0]!.endDate)} — start renewals now
+                    Earliest {date(overview.expiringSoon[0]!.endDate)}, start renewals now
                   </span>
                 </span>
               </Link>
