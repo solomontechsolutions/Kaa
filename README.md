@@ -162,3 +162,8 @@ The mark is a crab: two claws for protection, an arch for shelter, two dots for 
 centre. In Kiswahili *kaa* means both "crab" and "to stay, to settle" — the logo holds both readings.
 
 Source of truth: [`brand/Kaa Logo Brand Design.png`](brand/).
+
+> The mark in `web/src/components/brand/logo.tsx` is a **hand-traced SVG
+> approximation** of the brand PNG — close, but not the original artwork. It is
+> vector so it scales and recolours for dark mode, which a PNG cannot. Drop the
+> designer's original SVG or AI export into that component when it is available.
