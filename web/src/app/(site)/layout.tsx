@@ -2,7 +2,9 @@ import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 
 import { KaaMark, KaaWordmark } from "@/components/brand/logo";
+import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import { ButtonLink } from "@/components/ui";
+import { getLocale } from "@/lib/i18n/server";
 
 const nav = [
   { href: "/how-it-works", label: "How it works" },
@@ -12,7 +14,9 @@ const nav = [
   { href: "/pricing", label: "Pricing" },
 ];
 
-export default function SiteLayout({ children }: { children: React.ReactNode }) {
+export default async function SiteLayout({ children }: { children: React.ReactNode }) {
+  const locale = await getLocale();
+
   return (
     <div className="flex min-h-dvh flex-col">
       <header className="sticky top-0 z-40 border-b border-border/60 bg-background/75 backdrop-blur-xl">
@@ -34,8 +38,12 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
           </nav>
 
           <div className="ml-auto flex items-center gap-2">
+            <LanguageSwitcher current={locale} />
+            {/* Sign in, not sign up. Landlord accounts are created by the Field
+                Ops agent who enrols the property; there is no self-registration
+                anywhere on this site. */}
             <Link
-              href="/landlords#sign-in"
+              href="/operators"
               className="hidden rounded-lg px-3 py-2 text-sm font-medium text-foreground-muted transition-colors hover:text-foreground sm:block"
             >
               Landlord sign in

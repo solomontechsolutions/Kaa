@@ -53,6 +53,9 @@ export function CaptureForm({ wards, amenities }: { wards: Ward[]; amenities: { 
   // Landlord
   const [landlordName, setLandlordName] = React.useState("");
   const [landlordPhone, setLandlordPhone] = React.useState("");
+  // Landlords never register themselves — this capture *is* their enrolment,
+  // so the agent has to record that they agreed to it in person.
+  const [landlordConsent, setLandlordConsent] = React.useState(false);
 
   // Property
   const [propertyName, setPropertyName] = React.useState("");
@@ -121,7 +124,7 @@ export function CaptureForm({ wards, amenities }: { wards: Ward[]; amenities: { 
 
   const complete: Record<Step, boolean> = {
     Location: Boolean(fix && fix.accuracy <= ACCURACY_LIMIT_M && wardId && addressLine.trim()),
-    Landlord: Boolean(landlordName.trim() && normalizedLandlord),
+    Landlord: Boolean(landlordName.trim() && normalizedLandlord && landlordConsent),
     Property: Boolean(propertyName.trim() && Number(totalUnits) > 0),
     Units: rentValue > 0,
     Photos: photos.length >= MIN_PHOTOS,
@@ -289,9 +292,29 @@ export function CaptureForm({ wards, amenities }: { wards: Ward[]; amenities: { 
             <div className="rounded-xl bg-surface p-3.5">
               <p className="text-xs text-foreground-muted">
                 Explain to the landlord: Kaa lists the unit free, verifies it, and sends only tenants who have
-                confirmed their identity. No dalali fee is charged to the tenant.
+                confirmed their identity. No dalali fee is charged to the tenant. Kaa charges up to 5% of the
+                first year&rsquo;s rent, once, and only when Kaa fills the unit.
+              </p>
+              <p className="mt-2.5 text-xs text-foreground-muted">
+                They do not sign up for anything. You enrol the property here and Kaa creates their account;
+                the login arrives by SMS on this number once the submission is approved.
               </p>
             </div>
+
+            <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-border p-3.5">
+              <input
+                type="checkbox"
+                checked={landlordConsent}
+                onChange={(e) => setLandlordConsent(e.target.checked)}
+                className="mt-0.5 size-4 shrink-0 accent-[var(--color-kaa-500,#00C89A)]"
+              />
+              <span className="text-sm leading-relaxed">
+                The landlord agreed, in person, to enrol this property with Kaa on these terms.
+                <span className="mt-1 block text-xs text-foreground-subtle">
+                  Required. This is the record that the enrolment was consented to, not assumed.
+                </span>
+              </span>
+            </label>
           </CardBody>
         </Card>
       )}

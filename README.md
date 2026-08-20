@@ -15,17 +15,30 @@ cost stated before anyone travels across the city.
 
 ## Surfaces
 
-Kaa is **mobile first**. Tenant discovery lives in the mobile app. The web build in this repository
-serves three surfaces from a single Next.js application:
+Kaa is **mobile first**. Tenant discovery lives in the app. Everything below is one codebase
+deployed twice, and one database behind four interfaces.
 
-| Surface | Path | Audience | Purpose |
+| Surface | Deployment | Path | Audience |
 |---|---|---|---|
-| **Website** | `/` | Public | Brand, how verification works, landlord and agent recruitment, waitlist |
-| **Kaa Operators** | `/operators` | Landlords, property managers, platform admin | Properties, units, tenants, leases, rent collection, arrears, maintenance, listing approvals, agent network |
-| **Kaa Field Ops** | `/field` | Field agents | On-site listing capture with GPS and photos, submission tracking, earnings and payouts |
+| **Website** | `kaatz.vercel.app` | `/` | Public |
+| **Kaa app** | `kaatz.vercel.app` | `/app` | Tenants |
+| **Kaa Operators** | `kaatz.vercel.app` | `/operators` | Landlords enrolled by Field Ops, property managers, platform admin |
+| **Kaa Field Ops** | `kaafieldops.vercel.app` | `/` | Field agents |
+| **WhatsApp assistant** | webhook | `/api/whatsapp/webhook` | Tenants |
 
-The two portals are route groups today so everything ships as one deployment. They are structured so
-`app.kaa.co.tz` and `field.kaa.co.tz` can be mapped to them later without moving code.
+**Field Ops is a separate deployment.** It is the same repository with
+`NEXT_PUBLIC_KAA_SURFACE=fieldops`, which mounts the agent's day at the root of its own domain. The
+main deployment does not serve `/field` at all — a request for it there is a 404, not a redirect,
+because Field Ops is not a page of the Kaa website and should not be reachable from it.
+
+### Landlords do not sign up
+
+There is no landlord registration anywhere on this site, by design. Kaa Field Ops agents work a ward
+at a time, find the empty units, trace the owner, explain Kaa at the gate, and enrol the property on
+the spot — GPS fix, photographs, terms, and a recorded consent that the landlord agreed to it in
+person. Kaa creates the landlord's account from that submission and sends them the login. The
+property then appears in the Kaa app and in the WhatsApp assistant at the same moment, from the same
+database.
 
 ---
 
@@ -68,10 +81,9 @@ that catches people out: **Vercel's Root Directory must be `web`**, not the repo
 
 ```bash
 npm --prefix web run build
-```
-
-```bash
-npx --prefix web tsc --noEmit
+npm --prefix web run typecheck
+npm --prefix web run lint
+npm --prefix web test
 ```
 
 ---
@@ -79,13 +91,22 @@ npx --prefix web tsc --noEmit
 ## Repository layout
 
 ```
-├── web/                        Next.js application (all three surfaces)
+├── web/
 │   ├── src/app/(site)/         Public marketing site
+│   ├── src/app/app/            The Kaa app (tenants)
 │   ├── src/app/operators/      Kaa Operators portal
-│   ├── src/app/field/          Kaa Field Ops portal
-│   ├── src/app/api/            Route handlers
+│   ├── src/app/field/          Kaa Field Ops portal (its own deployment)
+│   ├── src/app/api/            Route handlers, incl. the WhatsApp webhook
 │   ├── src/components/         Design system, brand, shell, surface components
-│   └── src/lib/                Types, formatting, data layer, Supabase clients
+│   └── src/lib/
+│       ├── access/             Entitlements and the redaction boundary
+│       ├── accounts/           NIDA, phone OTP, sessions, account store
+│       ├── data/               Seed dataset, org read model, tenant catalogue
+│       ├── i18n/               Swahili, English, Kinyarwanda
+│       ├── search/             Criteria parsing and the ranked search service
+│       ├── subscription/       Membership state machine
+│       └── whatsapp/           Transport, conversation manager, phrasebook
+│   └── tests/                  Vitest: access, paywall bypass, WhatsApp, i18n
 ├── supabase/                   Schema, storage buckets, reference data, CLI config
 ├── brand/                      Logo and brand board
 ├── docs/                       Business plan, investor material, market research
@@ -111,6 +132,10 @@ pieces that matter:
   rental match, per the FieldOps agreement.
 - **Leases, invoices, payments**, mobile money settlement with the provider fee recorded separately
   so it can be shown rather than buried.
+- **Tenant accounts, memberships, saved properties** ([`0003_tenant_accounts.sql`](supabase/migrations/0003_tenant_accounts.sql)),
+  the tenant side. A NIDA number is stored only as a salted hash plus its last four digits. A
+  membership has exactly one path to `active`, and saved properties are gated in the database as
+  well as in the API.
 
 Row level security is enabled on every table with a default-deny posture. Reference data is
 world-readable, the public sees only `live` listings, org members see their own org, and an agent can
@@ -122,7 +147,7 @@ read their own earnings but never write them.
 
 | Stream | Detail |
 |---|---|
-| Tenant subscription | TZS 10,000 per year, the only thing a tenant pays Kaa |
+| Tenant membership | TZS 10,000 per year, the only thing a tenant pays Kaa |
 | Facilitation fee | Up to 5% of first-year rent, charged to the landlord once, only on a tenancy Kaa sourced |
 | Premium listings | Enhanced placement for landlords (planned) |
 | Value-added services | Tenant screening, document verification, rental insurance (planned) |
@@ -135,20 +160,36 @@ Built and working:
 
 - Full design system on the Kaa brand, tokens, primitives, status vocabulary, light and dark
 - Public marketing site: home, how it works, landlords, field ops, pricing, about, legal
+- **Three languages** — Swahili, English, Kinyarwanda — with the choice as a cookie, so it applies to
+  every surface and to the WhatsApp assistant without forking the URL space
+- **The Kaa app**: animated opening, create-an-account entry, NIDA + phone registration, interactive
+  search with filters, locked photo states, the paywall, the assistant, saved homes, account
+- **Freemium enforcement**, server-side. Free users get a genuine match count and a thin preview;
+  photos, full details, landlord contact, saving and viewings need a membership. Verified by a test
+  suite that tries to get past it with direct API calls, forged headers and a tampered cookie
+- **The WhatsApp assistant**: signature-checked webhook, natural-language search in three languages,
+  conversational refinement, the same paywall, the same database
 - Kaa Operators: dashboard with collections trend, properties and property detail, listings and
   approval queue, tenants, leases, rent and payments with arrears, viewings, maintenance, field agent
   network with review queue, settings
-- Kaa Field Ops: agent home, five-step guided capture with live GPS accuracy gating, submissions and
-  detail with reviewer feedback, earnings ledger, account
-- Complete Postgres schema with RLS, and a waitlist API that degrades gracefully without a database
+- Kaa Field Ops on its own deployment: agent home, five-step guided capture with live GPS accuracy
+  gating and recorded landlord consent, submissions and detail with reviewer feedback, earnings
+- Postgres schema with RLS across both migrations
 
-Not yet built:
+Not yet built, and what stands in for it today:
 
-- Authentication (phone OTP through Supabase) and role-based route protection
-- Live Supabase queries behind the data layer, replacing the seed dataset
-- Mobile money integration and NIDA verification, both stubbed in `.env.example`
-- Write paths: the forms render and validate but do not persist yet
-- WhatsApp onboarding funnel; Kiswahili translation layer (copy is English, `sw` is the HTML default)
+- **Live Supabase queries** behind the tenant catalogue. Reads still resolve against the seed
+  dataset, and accounts, memberships and saved homes live in an in-process store — fine for
+  development, never for production. `0003_tenant_accounts.sql` is the schema they move onto.
+- **A real NIDA integration.** Without credentials the flow runs against a labelled development
+  stub; the API says `source: "development"` and the UI says so on screen, so nothing ever passes a
+  synthetic identity off as a verification.
+- **A real payment provider.** Checkout creates a pending membership and nothing else. Only a signed
+  provider webhook can activate one, and Kaa refuses unsigned callbacks, so with no provider
+  configured a membership simply never activates.
+- **Supabase Auth for the operator side** and role-based route protection on `/operators`.
+- **Kinyarwanda copy has not been reviewed by a native speaker.** The keys are all present and
+  tested; the wording needs a pass before Kigali.
 
 ---
 

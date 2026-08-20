@@ -96,7 +96,7 @@ export default function PricingPage() {
               ))}
             </ul>
             <ButtonLink href="/landlords" size="lg" variant="outline" className="mt-8">
-              List your property
+              How Field Ops enrols you
             </ButtonLink>
           </Card>
         </div>
