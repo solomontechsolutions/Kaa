@@ -59,6 +59,11 @@ npm --prefix web run dev
 Then open http://localhost:3000. Copy `web/.env.example` to `web/.env.local` when you are ready to
 connect Supabase.
 
+### Deploying
+
+Vercel and Supabase setup, step by step, is in [DEPLOYMENT.md](DEPLOYMENT.md). The one setting
+that catches people out: **Vercel's Root Directory must be `web`**, not the repository root.
+
 ### Checks
 
 ```bash
@@ -81,7 +86,7 @@ npx --prefix web tsc --noEmit
 │   ├── src/app/api/            Route handlers
 │   ├── src/components/         Design system, brand, shell, surface components
 │   └── src/lib/                Types, formatting, data layer, Supabase clients
-├── supabase/migrations/        Database schema and row level security
+├── supabase/                   Schema, storage buckets, reference data, CLI config
 ├── brand/                      Logo and brand board
 ├── docs/                       Business plan, investor material, market research
 └── archive/                    Panga-era prototype, kept for reference only

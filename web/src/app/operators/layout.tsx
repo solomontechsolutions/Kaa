@@ -11,12 +11,18 @@ import {
   UsersRound,
   Wrench,
 } from "lucide-react";
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { KaaLockup } from "@/components/brand/logo";
 import { SidebarLink, TabLink } from "@/components/shell/nav-link";
 import { Avatar, Badge, Input } from "@/components/ui";
 import { currentOrg, operatorOverview } from "@/lib/data/queries";
+
+/** The portals are working tools, not marketing surfaces — keep them out of search. */
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 export default function OperatorsLayout({ children }: { children: React.ReactNode }) {
   const org = currentOrg();

@@ -1,11 +1,16 @@
 import { CameraIcon, Home, UserRound, Wallet } from "lucide-react";
 import { FileStack } from "lucide-react";
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { KaaLockup } from "@/components/brand/logo";
 import { TabLink } from "@/components/shell/nav-link";
 import { Avatar, Badge } from "@/components/ui";
 import { agentToday, currentAgent } from "@/lib/data/queries";
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 /**
  * Field Ops runs on a phone in the sun, one-handed, on patchy data.
