@@ -1,0 +1,43 @@
+# dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# next.js
+web/.next/
+web/out/
+web/build/
+.vercel/
+*.tsbuildinfo
+next-env.d.ts
+
+# env
+.env
+.env*.local
+!.env.example
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# os / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# legacy prototype (kept locally as reference, not versioned)
+archive/
+
+# large binaries — keep locally, out of git
+docs/**/*.mp4
+docs/**/*.MP4
+docs/**/*.pptx
+docs/**/~$*
+
+# supabase local
+supabase/.branches/
+supabase/.temp/
