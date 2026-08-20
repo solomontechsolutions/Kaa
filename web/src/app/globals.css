@@ -65,6 +65,11 @@
   --animate-pinch-left: pinch-left 3.6s cubic-bezier(0.45, 0, 0.25, 1) infinite;
   --animate-pinch-right: pinch-right 3.6s cubic-bezier(0.45, 0, 0.25, 1) infinite;
   --animate-scuttle: scuttle 3.6s cubic-bezier(0.45, 0, 0.25, 1) infinite;
+  --animate-splash-mark: splash-mark 1.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-splash-word: splash-word 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.45s both;
+  --animate-splash-tagline: splash-word 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.72s both;
+  --animate-splash-out: splash-out 0.5s cubic-bezier(0.5, 0, 0.75, 0) 1.5s both;
+  --animate-splash-ring: splash-ring 1.6s cubic-bezier(0.16, 1, 0.3, 1) both;
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -106,6 +111,31 @@
   0%, 62%, 100% { transform: translateY(0) rotate(0deg); }
   72%           { transform: translateY(0.6px) rotate(-1.1deg); }
   84%           { transform: translateY(0.3px) rotate(0.7deg); }
+}
+
+/* The opening. The mark arrives from nothing, settles with a spring, and the
+   claws take over from there — the loop in `kaa-mark-animated` picks up where
+   this leaves off, so the crab never appears to stop and restart. */
+@keyframes splash-mark {
+  0%   { opacity: 0; transform: scale(0.55) rotate(-14deg); }
+  55%  { opacity: 1; transform: scale(1.08) rotate(3deg); }
+  75%  { transform: scale(0.97) rotate(-1.5deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+@keyframes splash-word {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+/* A single ring pushing outward, the way water moves away from something
+   settling into it. */
+@keyframes splash-ring {
+  0%   { opacity: 0; transform: scale(0.4); }
+  35%  { opacity: 0.5; }
+  100% { opacity: 0; transform: scale(2.4); }
+}
+@keyframes splash-out {
+  from { opacity: 1; }
+  to   { opacity: 0; visibility: hidden; }
 }
 
 /* ── Semantic surface roles ─────────────────────────────────────── */
@@ -238,6 +268,12 @@
   .group:hover .kaa-claw-right,
   a:hover .kaa-claw-right,
   button:hover .kaa-claw-right { animation: pinch-right 0.7s var(--ease-spring); }
+
+  .kaa-splash-mark    { animation: var(--animate-splash-mark); }
+  .kaa-splash-word    { animation: var(--animate-splash-word); }
+  .kaa-splash-tagline { animation: var(--animate-splash-tagline); }
+  .kaa-splash-ring    { animation: var(--animate-splash-ring); }
+  .kaa-splash-out     { animation: var(--animate-splash-out); }
 
   .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
   .no-scrollbar::-webkit-scrollbar { display: none; }

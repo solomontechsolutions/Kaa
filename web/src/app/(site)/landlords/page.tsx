@@ -16,7 +16,6 @@ import {
 } from "lucide-react";
 import type { Metadata } from "next";
 
-import { WaitlistForm } from "@/components/marketing/waitlist-form";
 import { Reveal, RevealGroup } from "@/components/motion/reveal";
 import { Badge, ButtonLink, Card } from "@/components/ui";
 import { money } from "@/lib/format";
@@ -81,12 +80,12 @@ export default function LandlordsPage() {
               it is doing.
             </p>
             <div className="mt-9 flex flex-wrap gap-3">
-              <ButtonLink href="#list-with-kaa" size="lg">
-                Have an agent visit
+              <ButtonLink href="#how-we-find-you" size="lg">
+                How an agent reaches you
               </ButtonLink>
               <ButtonLink href="#sign-in" size="lg" variant="outline">
                 <Smartphone />
-                Landlord sign in
+                Already enrolled? Sign in
               </ButtonLink>
             </div>
           </Reveal>
@@ -241,22 +240,60 @@ export default function LandlordsPage() {
         </div>
       </section>
 
-      {/* ── Getting started ─────────────────────────────────────── */}
-      <section id="list-with-kaa" className="border-t border-border bg-surface py-24 lg:py-28">
+      {/* ── How Field Ops reaches you ───────────────────────────── */}
+      <section id="how-we-find-you" className="border-t border-border bg-surface py-24 lg:py-28">
         <div className="shell">
           <Reveal className="mx-auto max-w-2xl text-center">
             <h2 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl xl:text-5xl">
-              Leave your number. An agent comes to you.
+              You do not sign up for Kaa. Kaa comes to you.
             </h2>
             <p className="mx-auto mt-5 max-w-xl text-pretty text-lg text-foreground-muted">
-              About an hour of your time, once. After that the property is managed and you are a spectator.
+              There is no landlord registration on this site, and there never will be. Kaa Field Ops
+              agents work a ward at a time, find the empty units, and knock. Your part starts when
+              one of them is standing at your gate.
             </p>
-            <div className="mx-auto mt-10 max-w-xl text-left">
-              <WaitlistForm defaultRole="landlord" />
-            </div>
+          </Reveal>
+
+          <RevealGroup className="mx-auto mt-14 grid max-w-4xl gap-6 md:grid-cols-3">
+            {[
+              {
+                step: "01",
+                title: "An agent finds the unit",
+                body: "Field Ops walks the ward, spots what is empty, and traces the owner. Nobody waits for you to hear about Kaa.",
+              },
+              {
+                step: "02",
+                title: "They explain Kaa at your gate",
+                body: "What it costs, what it does, and what changes. An hour of your time, once. You decide there and then.",
+              },
+              {
+                step: "03",
+                title: "They enrol the property for you",
+                body: "The agent captures the unit on site — GPS, photographs, terms — and Kaa creates your account. You receive the login, not a form.",
+              },
+            ].map((item, i) => (
+              <Reveal key={item.step} delay={i * 90}>
+                <Card className="h-full p-7">
+                  <p className="tnum text-xs font-semibold uppercase tracking-wider text-kaa-700 dark:text-kaa-400">
+                    Step {item.step}
+                  </p>
+                  <h3 className="mt-3 text-lg font-semibold tracking-tight">{item.title}</h3>
+                  <p className="mt-2.5 text-sm leading-relaxed text-foreground-muted">{item.body}</p>
+                </Card>
+              </Reveal>
+            ))}
+          </RevealGroup>
+
+          <Reveal className="mx-auto mt-12 max-w-2xl text-center">
+            <p className="text-sm leading-relaxed text-foreground-subtle">
+              Once your property is enrolled it appears in the Kaa app and in the Kaa WhatsApp
+              assistant at the same moment, from the same database. There is nothing further for you
+              to publish anywhere.
+            </p>
           </Reveal>
         </div>
       </section>
+
     </>
   );
 }

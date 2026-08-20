@@ -4,11 +4,18 @@ import { NextResponse, type NextRequest } from "next/server";
 /**
  * Runs first on every matched request. Two jobs.
  *
- * 1. Surface routing. The same codebase is deployed to Vercel more than once.
- *    The main deployment serves everything; a second project sets
- *    NEXT_PUBLIC_KAA_SURFACE=fieldops and serves only Kaa Field Ops, at its own
- *    domain, with its own root. Field agents never pass through the public site
- *    to reach their work.
+ * 1. Surface routing. The same codebase is deployed to Vercel twice, and the
+ *    two deployments are separate products with separate audiences.
+ *
+ *    • `kaatz.vercel.app` — the public site, Kaa Operators, and the Kaa app.
+ *      It does **not** serve Field Ops. A request for /field here is a 404,
+ *      not a redirect, because Field Ops is not a page of the Kaa website and
+ *      should not be discoverable from it.
+ *
+ *    • `kaafieldops.vercel.app` — sets NEXT_PUBLIC_KAA_SURFACE=fieldops and
+ *      serves only Kaa Field Ops, mounted at its own root, so an agent's day
+ *      is at `/` and `/capture` is the capture flow. Anything outside the
+ *      Field Ops tree on that host is rewritten into it.
  *
  * 2. Supabase session refresh. Server Components cannot write cookies, so a
  *    rotated refresh token has nowhere to land unless something upstream does
@@ -32,19 +39,33 @@ const PASSTHROUGH = [
 ];
 
 function routeForSurface(request: NextRequest): NextResponse | null {
-  if (SURFACE !== "fieldops") return null;
-
   const { pathname } = request.nextUrl;
 
-  if (pathname.startsWith("/field") || PASSTHROUGH.some((p) => pathname.startsWith(p))) {
-    return null;
+  if (PASSTHROUGH.some((p) => pathname.startsWith(p))) return null;
+
+  if (SURFACE === "fieldops") {
+    if (pathname.startsWith("/field")) return null;
+
+    // Everything else on this deployment is Field Ops, mounted at the root, so
+    // /capture serves /field/capture and bare / serves the agent's day.
+    const url = request.nextUrl.clone();
+    url.pathname = pathname === "/" ? "/field" : `/field${pathname}`;
+    return NextResponse.rewrite(url);
   }
 
-  // Everything else on this deployment is Field Ops, mounted at the root, so
-  // /capture serves /field/capture and bare / serves the agent's day.
-  const url = request.nextUrl.clone();
-  url.pathname = pathname === "/" ? "/field" : `/field${pathname}`;
-  return NextResponse.rewrite(url);
+  // The main deployment. Field Ops lives at its own domain and its own Vercel
+  // project; serving it here as well would give the surface two URLs, one of
+  // them reachable from the marketing site.
+  if (pathname === "/field" || pathname.startsWith("/field/")) {
+    // Rewriting to a path no route matches renders `app/not-found.tsx` with a
+    // 404. A redirect would be worse: it would leave the impression that Field
+    // Ops has an address on this domain and is merely elsewhere today.
+    const url = request.nextUrl.clone();
+    url.pathname = "/field-ops-is-a-separate-deployment";
+    return NextResponse.rewrite(url);
+  }
+
+  return null;
 }
 
 export async function proxy(request: NextRequest) {
