@@ -7,6 +7,7 @@ import * as React from "react";
 import { FieldOpsLockup } from "@/components/brand/logo";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import { Button, Input } from "@/components/ui";
+import { PasswordInput } from "@/components/ui/password-input";
 import { translator } from "@/lib/i18n";
 import type { Locale } from "@/lib/i18n/config";
 import type { FieldOpsEmployeeRole } from "@/lib/fieldops/types";
@@ -51,7 +52,17 @@ export function SignInForm({ locale, roster }: { locale: Locale; roster: RosterE
       const payload = await response.json();
 
       if (!response.ok) {
-        setError(payload.error === "inactive" ? t("fieldops.inactiveAccount") : t("fieldops.signInFailed"));
+        // A 5xx is not a bad password — it means the server itself failed
+        // (most likely KAA_SESSION_SECRET missing in production). Telling
+        // those apart is the whole point: a wrong-credentials message on a
+        // server error sends someone hunting for a typo that isn't there.
+        setError(
+          response.status >= 500
+            ? "Sign-in is misconfigured on this deployment (server error, not a wrong password) — check /api/health."
+            : payload.error === "inactive"
+              ? t("fieldops.inactiveAccount")
+              : t("fieldops.signInFailed"),
+        );
         return;
       }
 
@@ -99,9 +110,8 @@ export function SignInForm({ locale, roster }: { locale: Locale; roster: RosterE
               <label htmlFor="employee-password" className="mb-2 block text-sm font-medium">
                 Password
               </label>
-              <Input
+              <PasswordInput
                 id="employee-password"
-                type="password"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 autoComplete="current-password"

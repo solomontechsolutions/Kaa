@@ -6,6 +6,7 @@ import * as React from "react";
 
 import { KaaLockup } from "@/components/brand/logo";
 import { Button, Input } from "@/components/ui";
+import { PasswordInput } from "@/components/ui/password-input";
 import { cn } from "@/lib/utils";
 
 /**
@@ -73,11 +74,13 @@ export function LandlordSignInForm() {
       const payload = await response.json();
       if (!response.ok) {
         setError(
-          payload.error === "incorrect"
-            ? "That code is not right."
-            : payload.error === "expired"
-              ? "That code has expired — request a new one."
-              : "Sign in failed.",
+          response.status >= 500
+            ? "Sign-in is misconfigured on this deployment (server error) — check /api/health."
+            : payload.error === "incorrect"
+              ? "That code is not right."
+              : payload.error === "expired"
+                ? "That code has expired — request a new one."
+                : "Sign in failed.",
         );
         return;
       }
@@ -101,7 +104,15 @@ export function LandlordSignInForm() {
         body: JSON.stringify({ email, password }),
       });
       if (!response.ok) {
-        setError("That email or password is not right.");
+        // A 5xx is the server failing (most likely KAA_SESSION_SECRET
+        // missing in production), not a wrong password — worth saying
+        // outright rather than sending someone hunting for a credentials
+        // typo that isn't there.
+        setError(
+          response.status >= 500
+            ? "Sign-in is misconfigured on this deployment (server error, not a wrong password) — check /api/health."
+            : "That email or password is not right.",
+        );
         return;
       }
       router.push("/landlord");
@@ -232,9 +243,8 @@ export function LandlordSignInForm() {
                 <label htmlFor="landlord-password" className="mb-2 block text-sm font-medium">
                   Password
                 </label>
-                <Input
+                <PasswordInput
                   id="landlord-password"
-                  type="password"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
                   autoComplete="current-password"

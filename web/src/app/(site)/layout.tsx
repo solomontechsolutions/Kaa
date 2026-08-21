@@ -13,6 +13,19 @@ const nav = [
   { href: "/pricing", label: "Pricing" },
 ];
 
+/**
+ * Sign-in entry points, not marketing pages — kept visually distinct from
+ * `nav` above by the divider before them, but just as visible. A landlord
+ * and a Kaa operator are different user types with different destinations
+ * (`/landlord/sign-in`, `/operators/sign-in`); burying one of them in the
+ * footer, the way this page used to, is what made the other one look like
+ * the only real entry point.
+ */
+const signIn = [
+  { href: "/landlord/sign-in", label: "Landlord" },
+  { href: "/operators/sign-in", label: "Operators" },
+];
+
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
   const locale = await getLocale();
 
@@ -40,14 +53,20 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
             <LanguageSwitcher current={locale} />
             {/* Sign in, not sign up. Landlord accounts are created by the Field
                 Ops agent who enrols the property; there is no self-registration
-                anywhere on this site. A landlord is not a Kaa operator, so this
-                goes to the landlord portal, never to /operators. */}
-            <Link
-              href="/landlord/sign-in"
-              className="hidden rounded-lg px-3 py-2 text-sm font-medium text-foreground-muted transition-colors hover:text-foreground sm:block"
-            >
-              Landlord sign in
-            </Link>
+                anywhere on this site. A landlord is not a Kaa operator — two
+                different destinations, equally visible, neither one hidden in
+                the footer. */}
+            <div className="hidden items-center gap-1 border-l border-border pl-2 sm:flex">
+              {signIn.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="rounded-lg px-3 py-2 text-sm font-medium text-foreground-muted transition-colors hover:text-foreground"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
             <ButtonLink href="/app" size="sm">
               Open Kaa
             </ButtonLink>
@@ -85,7 +104,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
               links={[
                 { href: "/landlords", label: "For landlords" },
                 { href: "/landlord/sign-in", label: "Landlord sign in" },
-                { href: "/operators", label: "Kaa staff: operator sign in" },
+                { href: "/operators/sign-in", label: "Kaa staff: operator sign in" },
               ]}
             />
             <FooterColumn

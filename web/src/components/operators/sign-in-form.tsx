@@ -7,6 +7,7 @@ import * as React from "react";
 import { KaaLockup } from "@/components/brand/logo";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import { Button, Input } from "@/components/ui";
+import { PasswordInput } from "@/components/ui/password-input";
 import type { Locale } from "@/lib/i18n/config";
 
 /**
@@ -33,7 +34,15 @@ export function OperatorSignInForm({ locale, demoEmployeeId }: { locale: Locale;
         body: JSON.stringify({ identifier, password }),
       });
       if (!response.ok) {
-        setError("That employee ID or password is not right.");
+        // A 5xx here means the server itself failed — most likely
+        // KAA_SESSION_SECRET missing in production — not a wrong password.
+        // Conflating the two is exactly what made a real misconfiguration
+        // look like a typo in the credentials.
+        setError(
+          response.status >= 500
+            ? "Sign-in is misconfigured on this deployment (server error, not a wrong password) — check /api/health."
+            : "That employee ID or password is not right.",
+        );
         return;
       }
       router.push("/operators");
@@ -78,9 +87,8 @@ export function OperatorSignInForm({ locale, demoEmployeeId }: { locale: Locale;
               <label htmlFor="operator-password" className="mb-2 block text-sm font-medium">
                 Password
               </label>
-              <Input
+              <PasswordInput
                 id="operator-password"
-                type="password"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 autoComplete="current-password"

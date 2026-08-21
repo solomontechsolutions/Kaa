@@ -167,6 +167,33 @@ The demo tenant already has an active Kaa membership and an active rental on the
 Mbezi apartment (rent TSh 300,000, Kaa's charge TSh 30,000, total TSh 330,000) — the whole commercial
 model is visible on both dashboards without any setup.
 
+### If sign-in fails on a deployed site: check `/api/health` first
+
+`https://<your-deployment>/api/health` — unauthenticated, no secrets in the response. It answers the
+two questions that actually matter before you touch a password field:
+
+```json
+{
+  "deployment": { "commit": "…", "vercelEnv": "production", "surface": "main" },
+  "config": { "sessionSecretConfigured": true, "nidaHashSaltConfigured": false, "accountStore": "memory" },
+  "demoAccountsSeeded": { "kaaOperator": true, "landlord": true, "fieldOpsOfficer": true, "fieldOpsAdmin": true }
+}
+```
+
+- **`config.sessionSecretConfigured: false`** is the one that matters most. Every password- or
+  OTP-based sign-in issues a signed session cookie, and issuing one calls `KAA_SESSION_SECRET` —
+  required in production by design (`lib/*/session.ts` refuse to sign with a default there). Without
+  it, sign-in fails with a 500 on the *correct* password, and — before this was fixed — every sign-in
+  form showed that identically to "wrong credentials." Set `KAA_SESSION_SECRET` under the Vercel
+  project's Settings → Environment Variables → Production, for **each** of the two projects
+  separately (they don't share one), then redeploy. The forms now say "misconfigured on this
+  deployment" instead of "not right" when this is the cause, so this should be diagnosable without
+  `/api/health` too — check it out of habit anyway.
+- **`deployment.commit`** is `VERCEL_GIT_COMMIT_SHA`, which Vercel sets automatically — compare it
+  against the latest commit on `main` to confirm the deployment isn't stale before assuming a code bug.
+- **`demoAccountsSeeded`** should be all `true` on every deployment; the seed runs at first access in
+  every process, Vercel serverless included, and doesn't depend on a database migration having run.
+
 ### Deploying
 
 Vercel and Supabase setup, step by step, is in [DEPLOYMENT.md](DEPLOYMENT.md). The one setting
