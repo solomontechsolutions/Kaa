@@ -21,6 +21,7 @@ export function SubmissionFilters({
   selected,
   labels,
   statusLabels,
+  basePath = "/field/submissions",
 }: {
   statuses: SubmissionStatus[];
   wards: string[];
@@ -36,6 +37,8 @@ export function SubmissionFilters({
     search: string;
   };
   statusLabels: Record<string, string>;
+  /** The list page these filters rewrite the URL for. */
+  basePath?: string;
 }) {
   const router = useRouter();
   const params = useSearchParams();
@@ -45,9 +48,9 @@ export function SubmissionFilters({
     (mutate: (next: URLSearchParams) => void) => {
       const next = new URLSearchParams(params.toString());
       mutate(next);
-      router.push(`/field/submissions${next.toString() ? `?${next}` : ""}`);
+      router.push(`${basePath}${next.toString() ? `?${next}` : ""}`);
     },
-    [params, router],
+    [params, router, basePath],
   );
 
   function toggleStatus(status: SubmissionStatus) {
@@ -131,7 +134,7 @@ export function SubmissionFilters({
             type="button"
             onClick={() => {
               setQuery("");
-              router.push("/field/submissions");
+              router.push(basePath);
             }}
             className="inline-flex h-10 items-center gap-1.5 rounded-xl px-3 text-sm font-medium text-foreground-muted transition-colors hover:bg-surface hover:text-foreground"
           >

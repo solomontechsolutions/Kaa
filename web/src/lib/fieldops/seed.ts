@@ -12,7 +12,8 @@
  */
 
 import { DEMO_FIELDOPS_ADMIN, DEMO_FIELDOPS_OFFICER, DEMO_KAA_OPERATOR } from "@/lib/demo/credentials";
-import type { Assignment, AuditEvent, FieldOfficer, PropertySubmission, SubmissionStatus } from "./types";
+import { hashPassword } from "@/lib/auth/password";
+import type { Assignment, AuditEvent, FieldOfficer, FieldOpsRole, PropertySubmission, SubmissionStatus } from "./types";
 
 const HOUR = 3_600_000;
 
@@ -23,6 +24,14 @@ function hoursAgo(hours: number): string {
 function dateIn(days: number): string {
   return new Date(Date.now() + days * 24 * HOUR).toISOString().slice(0, 10);
 }
+
+// Every seeded field officer shares the demo officer password, every
+// supervisor shares the demo admin password — one hash computed once at
+// startup per role, not per row. FieldOps' employee table holds only these
+// two roles; there is no `kaa_operator` row here or anywhere in this store —
+// that identity lives entirely in `lib/operators/`, a separate entity.
+const FIELD_OFFICER_PASSWORD_HASH = hashPassword(DEMO_FIELDOPS_OFFICER.password);
+const FIELDOPS_SUPERVISOR_PASSWORD_HASH = hashPassword(DEMO_FIELDOPS_ADMIN.password);
 
 export function seedOfficers(): FieldOfficer[] {
   return [
@@ -37,6 +46,7 @@ export function seedOfficers(): FieldOfficer[] {
       startedAt: "2025-11-03",
       lastActiveAt: hoursAgo(1),
       deviceId: "PDU-014",
+      passwordHash: FIELD_OFFICER_PASSWORD_HASH,
     },
     {
       id: "fo-asha",
@@ -49,6 +59,7 @@ export function seedOfficers(): FieldOfficer[] {
       startedAt: "2026-01-12",
       lastActiveAt: hoursAgo(3),
       deviceId: "PDU-027",
+      passwordHash: FIELD_OFFICER_PASSWORD_HASH,
     },
     {
       id: "fo-musa",
@@ -61,6 +72,7 @@ export function seedOfficers(): FieldOfficer[] {
       startedAt: "2026-03-02",
       lastActiveAt: hoursAgo(26),
       deviceId: "PDU-031",
+      passwordHash: FIELD_OFFICER_PASSWORD_HASH,
     },
     {
       id: "fo-neema",
@@ -73,6 +85,7 @@ export function seedOfficers(): FieldOfficer[] {
       startedAt: "2026-02-17",
       lastActiveAt: hoursAgo(340),
       deviceId: "PDU-033",
+      passwordHash: FIELD_OFFICER_PASSWORD_HASH,
     },
     {
       id: "fs-rehema",
@@ -84,22 +97,15 @@ export function seedOfficers(): FieldOfficer[] {
       isActive: true,
       startedAt: "2025-09-01",
       lastActiveAt: hoursAgo(2),
-    },
-    {
-      id: "ko-sarah",
-      employeeId: "KAA-OPS-002",
-      fullName: "Sarah Mushi",
-      phone: "+255754000002",
-      role: "kaa_operator",
-      assignedAreas: [],
-      isActive: true,
-      startedAt: "2025-08-04",
-      lastActiveAt: hoursAgo(1),
+      passwordHash: FIELDOPS_SUPERVISOR_PASSWORD_HASH,
     },
 
-    // ── Demo accounts, one per role, so a reviewer can sign in and try every
-    //    portal without inventing credentials. Their employee ids match what
-    //    the sign-in page and product spec both document.
+    // ── Demo accounts, one per FieldOps role, so a reviewer can sign in and
+    //    try both FieldOps portals without inventing credentials. Their
+    //    employee ids and passwords match what the sign-in page and product
+    //    spec both document. There is no Kaa-operator demo account here —
+    //    Kaa operators sign in at kaatz.vercel.app/operators/sign-in,
+    //    against `lib/operators/`, never here.
     {
       id: "demo-fieldops-officer",
       employeeId: DEMO_FIELDOPS_OFFICER.employeeId,
@@ -111,6 +117,7 @@ export function seedOfficers(): FieldOfficer[] {
       startedAt: "2026-01-01",
       lastActiveAt: hoursAgo(2),
       deviceId: "PDU-DEMO",
+      passwordHash: FIELD_OFFICER_PASSWORD_HASH,
     },
     {
       id: "demo-fieldops-admin",
@@ -122,17 +129,7 @@ export function seedOfficers(): FieldOfficer[] {
       isActive: true,
       startedAt: "2026-01-01",
       lastActiveAt: hoursAgo(2),
-    },
-    {
-      id: "demo-kaa-operator",
-      employeeId: DEMO_KAA_OPERATOR.employeeId,
-      fullName: DEMO_KAA_OPERATOR.fullName,
-      phone: "+255700000105",
-      role: "kaa_operator",
-      assignedAreas: [],
-      isActive: true,
-      startedAt: "2026-01-01",
-      lastActiveAt: hoursAgo(2),
+      passwordHash: FIELDOPS_SUPERVISOR_PASSWORD_HASH,
     },
   ];
 }
@@ -142,7 +139,10 @@ let auditCounter = 0;
 function event(
   submissionId: string,
   at: string,
-  actor: { id: string; name: string; role: FieldOfficer["role"] },
+  // `AuditEvent.actorRole` is the wider `FieldOpsRole` — a Kaa operator's
+  // review actions belong in this history too, and `SARAH` below represents
+  // one without being a `FieldOfficer` row.
+  actor: { id: string; name: string; role: FieldOpsRole },
   action: AuditEvent["action"],
   detail: string,
 ): AuditEvent {
@@ -161,7 +161,11 @@ function event(
 const HAMISI = { id: "fo-hamisi", name: "Hamisi Mwakalinga", role: "field_officer" as const };
 const ASHA = { id: "fo-asha", name: "Asha Mbwana", role: "field_officer" as const };
 const MUSA = { id: "fo-musa", name: "Musa Kileo", role: "field_officer" as const };
-const SARAH = { id: "ko-sarah", name: "Sarah Mushi", role: "kaa_operator" as const };
+// Not a FieldOps employee — a Kaa operator, identified for the audit trail
+// only. Their real identity lives in `lib/operators/`, a separate entity;
+// this literal exists so seeded submission history reads as if a real
+// review happened, without the officer table holding a row for them.
+const SARAH = { id: "demo-kaa-operator", name: DEMO_KAA_OPERATOR.fullName, role: "kaa_operator" as const };
 const DEMO_OFFICER = {
   id: "demo-fieldops-officer",
   name: DEMO_FIELDOPS_OFFICER.fullName,

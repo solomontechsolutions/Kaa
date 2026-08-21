@@ -6,20 +6,24 @@ import * as React from "react";
 
 import { KaaLockup } from "@/components/brand/logo";
 import { Button, Input } from "@/components/ui";
+import { cn } from "@/lib/utils";
 
 /**
- * Landlord sign-in: phone, then the code sent to it.
+ * Landlord sign-in: phone + OTP, or email + password — a landlord's choice,
+ * not a step-up from one to the other. Both check a real credential against
+ * the same landlord record; neither is a fake "log in as" shortcut.
  *
  * There is no landlord sign-up here, deliberately — a landlord becomes one
  * when Kaa Field Ops enrols their property, not by registering on this site.
- * A phone that is not on a landlord record says so rather than pretending a
- * code was sent, the same honesty the tenant NIDA flow already uses.
  */
 export function LandlordSignInForm() {
   const router = useRouter();
+  const [mode, setMode] = React.useState<"phone" | "password">("phone");
   const [step, setStep] = React.useState<"phone" | "code">("phone");
   const [phone, setPhone] = React.useState("");
   const [code, setCode] = React.useState("");
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [devHint, setDevHint] = React.useState<string | null>(null);
@@ -86,6 +90,35 @@ export function LandlordSignInForm() {
     }
   }
 
+  async function signInWithPassword(event: React.FormEvent) {
+    event.preventDefault();
+    setBusy(true);
+    setError(null);
+    try {
+      const response = await fetch("/api/landlords/session", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      if (!response.ok) {
+        setError("That email or password is not right.");
+        return;
+      }
+      router.push("/landlord");
+      router.refresh();
+    } catch {
+      setError("Something went wrong. Try again.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function switchMode(next: "phone" | "password") {
+    setMode(next);
+    setStep("phone");
+    setError(null);
+  }
+
   return (
     <div className="flex min-h-dvh flex-col bg-surface">
       <header className="flex h-16 items-center px-5 lg:px-8">
@@ -96,61 +129,123 @@ export function LandlordSignInForm() {
         <div className="w-full max-w-sm">
           <h1 className="text-2xl font-semibold tracking-tight">Landlord sign in</h1>
           <p className="mt-1.5 text-sm text-foreground-muted">
-            {step === "phone"
-              ? "Enter the phone number Kaa Field Ops enrolled for your property."
-              : `Enter the code sent to ${phone}.`}
+            {mode === "phone"
+              ? step === "phone"
+                ? "Enter the phone number Kaa Field Ops enrolled for your property."
+                : `Enter the code sent to ${phone}.`
+              : "Sign in with the email and password Kaa gave you."}
           </p>
 
-          {step === "phone" ? (
-            <form onSubmit={requestCode} className="mt-8 space-y-4">
-              <div>
-                <label htmlFor="landlord-phone" className="mb-2 block text-sm font-medium">
-                  Phone number
-                </label>
-                <Input
-                  id="landlord-phone"
-                  value={phone}
-                  onChange={(event) => setPhone(event.target.value)}
-                  autoComplete="tel"
-                  placeholder="0700 000 102"
-                  className="h-12"
-                />
-              </div>
-              {error && <ErrorText>{error}</ErrorText>}
-              <Button type="submit" size="lg" className="w-full" disabled={busy || phone.trim().length < 9}>
-                {busy ? <Loader2 className="animate-spin" /> : <ArrowRight />}
-                Send code
-              </Button>
-            </form>
+          <div className="mt-6 inline-flex rounded-xl border border-border bg-surface-raised p-1">
+            <button
+              type="button"
+              onClick={() => switchMode("phone")}
+              className={cn(
+                "rounded-lg px-3.5 py-1.5 text-sm font-medium transition-colors",
+                mode === "phone" ? "bg-kaa-500 text-ink-950" : "text-foreground-muted hover:text-foreground",
+              )}
+            >
+              Phone
+            </button>
+            <button
+              type="button"
+              onClick={() => switchMode("password")}
+              className={cn(
+                "rounded-lg px-3.5 py-1.5 text-sm font-medium transition-colors",
+                mode === "password" ? "bg-kaa-500 text-ink-950" : "text-foreground-muted hover:text-foreground",
+              )}
+            >
+              Email
+            </button>
+          </div>
+
+          {mode === "phone" ? (
+            step === "phone" ? (
+              <form onSubmit={requestCode} className="mt-6 space-y-4">
+                <div>
+                  <label htmlFor="landlord-phone" className="mb-2 block text-sm font-medium">
+                    Phone number
+                  </label>
+                  <Input
+                    id="landlord-phone"
+                    value={phone}
+                    onChange={(event) => setPhone(event.target.value)}
+                    autoComplete="tel"
+                    placeholder="0700 000 102"
+                    className="h-12"
+                  />
+                </div>
+                {error && <ErrorText>{error}</ErrorText>}
+                <Button type="submit" size="lg" className="w-full" disabled={busy || phone.trim().length < 9}>
+                  {busy ? <Loader2 className="animate-spin" /> : <ArrowRight />}
+                  Send code
+                </Button>
+              </form>
+            ) : (
+              <form onSubmit={verifyCode} className="mt-6 space-y-4">
+                <div>
+                  <label htmlFor="landlord-code" className="mb-2 block text-sm font-medium">
+                    Code
+                  </label>
+                  <Input
+                    id="landlord-code"
+                    value={code}
+                    onChange={(event) => setCode(event.target.value)}
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    placeholder="000000"
+                    className="h-12"
+                  />
+                  {devHint && <p className="mt-2 text-xs text-foreground-subtle">{devHint}</p>}
+                </div>
+                {error && <ErrorText>{error}</ErrorText>}
+                <Button type="submit" size="lg" className="w-full" disabled={busy || code.trim().length < 4}>
+                  {busy ? <Loader2 className="animate-spin" /> : <ArrowRight />}
+                  Sign in
+                </Button>
+                <button
+                  type="button"
+                  onClick={() => setStep("phone")}
+                  className="w-full text-center text-sm text-foreground-muted hover:text-foreground"
+                >
+                  Use a different number
+                </button>
+              </form>
+            )
           ) : (
-            <form onSubmit={verifyCode} className="mt-8 space-y-4">
+            <form onSubmit={signInWithPassword} className="mt-6 space-y-4">
               <div>
-                <label htmlFor="landlord-code" className="mb-2 block text-sm font-medium">
-                  Code
+                <label htmlFor="landlord-email" className="mb-2 block text-sm font-medium">
+                  Email
                 </label>
                 <Input
-                  id="landlord-code"
-                  value={code}
-                  onChange={(event) => setCode(event.target.value)}
-                  inputMode="numeric"
-                  autoComplete="one-time-code"
-                  placeholder="000000"
+                  id="landlord-email"
+                  type="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  autoComplete="username"
+                  placeholder="landlord@demo.kaa"
                   className="h-12"
                 />
-                {devHint && <p className="mt-2 text-xs text-foreground-subtle">{devHint}</p>}
+              </div>
+              <div>
+                <label htmlFor="landlord-password" className="mb-2 block text-sm font-medium">
+                  Password
+                </label>
+                <Input
+                  id="landlord-password"
+                  type="password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  autoComplete="current-password"
+                  className="h-12"
+                />
               </div>
               {error && <ErrorText>{error}</ErrorText>}
-              <Button type="submit" size="lg" className="w-full" disabled={busy || code.trim().length < 4}>
+              <Button type="submit" size="lg" className="w-full" disabled={busy || !email || !password}>
                 {busy ? <Loader2 className="animate-spin" /> : <ArrowRight />}
                 Sign in
               </Button>
-              <button
-                type="button"
-                onClick={() => setStep("phone")}
-                className="w-full text-center text-sm text-foreground-muted hover:text-foreground"
-              >
-                Use a different number
-              </button>
             </form>
           )}
         </div>

@@ -209,14 +209,26 @@ export interface PropertySubmission {
 
 // ── People ─────────────────────────────────────────────────────────────
 
+/**
+ * The permission tier an actor holds over a submission — not the same thing
+ * as which entity's payroll they're on. A Kaa operator's identity lives
+ * entirely in `lib/operators/`, a separate table on Kaa's side; this role
+ * only ever reaches an `Actor` (see `permissions.ts`) via that module's
+ * session, never via a `FieldOfficer` row. FieldOps' own employee table can
+ * only ever hold `FieldOpsEmployeeRole` — see below — which is the
+ * enforcement that a Kaa operator cannot be a row in FieldOps' own roster.
+ */
 export type FieldOpsRole = "field_officer" | "fieldops_supervisor" | "kaa_operator";
+
+/** What FieldOps' own employee table may actually contain. No `kaa_operator` — that identity is not FieldOps'. */
+export type FieldOpsEmployeeRole = Exclude<FieldOpsRole, "kaa_operator">;
 
 export interface FieldOfficer {
   id: string;
   employeeId: string;
   fullName: string;
   phone: string;
-  role: FieldOpsRole;
+  role: FieldOpsEmployeeRole;
   /** Wards this officer works. Hyperlocal saturation beats citywide spread. */
   assignedAreas: string[];
   isActive: boolean;
@@ -224,6 +236,8 @@ export interface FieldOfficer {
   lastActiveAt?: string;
   /** The PDU in their hand, so a lost device can be traced to a person. */
   deviceId?: string;
+  /** `<salt-hex>:<hash-hex>` from `lib/auth/password.ts`. Never the password itself. */
+  passwordHash: string;
 }
 
 export interface Assignment {

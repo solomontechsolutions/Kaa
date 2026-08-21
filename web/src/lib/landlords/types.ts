@@ -15,6 +15,8 @@ export interface Landlord {
   fullName: string;
   phone: string;
   email?: string;
+  /** `<salt-hex>:<hash-hex>` from `lib/auth/password.ts`. Optional: a landlord enrolled without an email has none, and signs in by phone + OTP only. */
+  passwordHash?: string;
   /** The organisation whose properties this landlord may see. */
   orgId: string;
   isActive: boolean;

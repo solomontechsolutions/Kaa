@@ -25,17 +25,47 @@ deployed twice, and one database behind four interfaces.
 | **Kaa Operators** | `kaatz.vercel.app` | `/operators` | Internal Kaa staff only — platform admin, reviews FieldOps submissions |
 | **Landlord portal** | `kaatz.vercel.app` | `/landlord` | Landlords enrolled by FieldOps |
 | **WhatsApp assistant** | webhook | `/api/whatsapp/webhook` | Tenants |
-| **FieldOps portal** | `kaafieldops.vercel.app` | `/` | FieldOps supervisors, Kaa reviewers |
+| **FieldOps portal** | `kaafieldops.vercel.app` | `/` | FieldOps admins/supervisors — FieldOps' own staff only |
 | **FieldOps field app** | `kaafieldops.vercel.app` | `/app` | FieldOps officers, on a PDU |
+
+### Two entities, five roles, four identity tables
+
+```text
+                         KAA                                FIELDOPS
+                  fully owned by its founder          jointly owned by Kaa
+                                                        and a Tanzanian dalali
+          ┌──────────────┼──────────────┐                       │
+          │              │              │            ┌──────────┴──────────┐
+       TENANT        LANDLORD      KAA_OPERATOR       │                     │
+          │              │              │      FIELDOPS_OFFICER     FIELDOPS_ADMIN
+          ▼              ▼              ▼              │                     │
+      Kaa app    Landlord portal   Kaa Operators        ▼                     ▼
+                                    (/operators)   Field app (mobile)   FieldOps portal
+                                                    kaafieldops.vercel.app, both of them
+```
+
+A Kaa operator is on Kaa's payroll. A FieldOps officer or admin is on FieldOps'. Neither can become
+the other by changing a role field, because there is no shared row to change one on — each has its
+own identity table (`web/src/lib/accounts`, `web/src/lib/landlords`, `web/src/lib/operators`,
+`web/src/lib/fieldops`) and its own signed session cookie. `KAA_OPERATOR` is never a value FieldOps'
+own employee table can hold (`FieldOpsEmployeeRole` in `web/src/lib/fieldops/types.ts` only ever
+admits `field_officer` and `fieldops_supervisor`), so a Kaa operator cannot appear on the FieldOps
+sign-in roster even by accident.
+
+All five are enforced apart in `web/src/proxy.ts`, ahead of any page rendering — not by a frontend
+redirect a wrong-role visitor could just avoid.
 
 ### FieldOps is a separate company
 
 Not a section of Kaa. FieldOps is its own operating entity, jointly owned by Kaa and an established
-dalali, and its employees are on its payroll. It collects property data on Kaa's behalf; Kaa reviews
-that data and decides what enters its marketplace.
+dalali, and its employees are on its payroll. It collects property data on Kaa's behalf; a Kaa
+operator reviews that data and decides what enters Kaa's marketplace — from inside Kaa's own admin,
+never by signing into FieldOps' product.
 
-That is why it is a separate deployment (`NEXT_PUBLIC_KAA_SURFACE=fieldops`), why the tenant site
-carries no link to it, and why the main deployment answers 404 for `/field` rather than redirecting.
+That is why FieldOps is a separate deployment (`NEXT_PUBLIC_KAA_SURFACE=fieldops`), why the tenant
+site carries no link to it, and why the main deployment answers 404 for `/field` unconditionally —
+even a signed-in Kaa operator gets the 404 there. There is no session on `kaatz.vercel.app` that
+unlocks FieldOps' product, because a Kaa operator has no business being in it.
 
 It ships as two applications, because a supervisor at a desk and an officer at a gate want opposite
 things:
@@ -48,7 +78,8 @@ things:
 ```text
 FieldOps officer ─▶ collect on the PDU ─▶ upload
                                             │
-                                    Kaa operator reviews
+                              Kaa operator reviews, at /operators/fieldops
+                              (kaatz.vercel.app — not the FieldOps portal)
                                             │
                             ┌───────────────┴───────────────┐
                             ▼                               ▼
@@ -59,28 +90,23 @@ FieldOps officer ─▶ collect on the PDU ─▶ upload
                         re-upload ─▶ back to the queue
 ```
 
-An officer cannot approve their own work. That rule is in the service, in the route handlers and in
-row-level security, and it is what the whole arrangement is for — the entity collecting the data is
-not the entity accepting it.
+An officer cannot approve their own work — that capability simply does not exist for
+`field_officer` or `fieldops_supervisor` (see `web/src/lib/fieldops/permissions.ts`). Only
+`kaa_operator` can approve, request a correction, or reject, and that role is only ever reached
+through `web/src/lib/operators/session.ts` — FieldOps' own portal has no path to it. There is exactly
+one place a submission gets approved: `/operators/fieldops` inside Kaa Operators. FieldOps' own
+`/field/submissions/[id]` shows the same record, read-only for FieldOps staff, with no approve button
+to render, because nobody who reaches that page ever holds the capability to click one.
 
 ### Landlords do not sign up
 
 There is no landlord registration anywhere on this site, by design. Kaa Field Ops agents work a ward
 at a time, find the empty units, trace the owner, explain Kaa at the gate, and enrol the property on
 the spot — GPS fix, photographs, terms, and a recorded consent that the landlord agreed to it in
-person. Kaa creates the landlord's account from that submission; the landlord signs in with the phone
-number that was enrolled, at `/landlord` — a phone + OTP flow, not a password. The property then
-appears in the Kaa app and in the WhatsApp assistant at the same moment, from the same database.
-
-### Landlord, Kaa operator and FieldOps employee are three different logins
-
-A landlord is a Kaa partner who lists property and watches their own portfolio at `/landlord`. A Kaa
-operator is an internal Kaa employee who runs the platform — reviews listings, tenants, leases,
-payments, maintenance, and FieldOps submissions — at `/operators`. Neither is FieldOps: FieldOps
-employees collect property data for Kaa to review and never touch `/operators` or `/landlord`. The
-three sign in through separate flows (`/landlord/sign-in`, `/operators/sign-in`,
-`kaafieldops.vercel.app/sign-in`) and are enforced apart in `web/src/proxy.ts`, ahead of any page
-rendering — not by a frontend redirect that a wrong-role visitor could just avoid.
+person. Kaa creates the landlord's account from that submission; the landlord signs in at `/landlord`,
+either with the phone number that was enrolled (phone + OTP) or, if Kaa gave them one, an email and
+password. The property then appears in the Kaa app and in the WhatsApp assistant at the same moment,
+from the same database.
 
 ---
 
@@ -114,19 +140,28 @@ npm --prefix web run dev
 Then open http://localhost:3000. Copy `web/.env.example` to `web/.env.local` when you are ready to
 connect Supabase.
 
-### Demo accounts
+### Demo accounts — DEMO ONLY, NOT PRODUCTION CREDENTIALS
 
-Seeded in `web/src/lib/demo/credentials.ts`, so the sign-in pages, the seed data and this table can
-never drift apart. Each one signs in through the real flow for its role — there is no fake "log in as"
-button anywhere.
+Seeded in `web/src/lib/demo/credentials.ts`, so the sign-in pages, the seeds and this table can never
+drift apart. Each one signs in through the real flow for its role, against a real hashed password
+where the role has one — there is no fake "log in as" button and no plaintext password anywhere in
+the app itself. Passwords are hashed with scrypt (`web/src/lib/auth/password.ts`, `node:crypto`, no
+extra dependency), salted per account, compared with a timing-safe check, and never returned by any
+API response. They are printed here, in plain text, only because this whole table is explicitly a
+development fixture — see the file header for the same disclosure in code.
 
-| Role | How to sign in | Identity |
-|---|---|---|
-| Tenant | `/app` → NIDA number `19900101000000000012` (dev-mode NIDA recognises this exact number as "Demo Tenant") → phone OTP (code is written to the server log) | tenant@demo.kaa · +255 700 000 101 |
-| Landlord | `/landlord/sign-in` → phone `+255 700 000 102` → OTP (server log) | landlord@demo.kaa |
-| Kaa operator | `/operators/sign-in` → employee ID `KAA-OP-001` | operator@demo.kaa |
-| FieldOps officer | `kaafieldops.vercel.app/sign-in` (or `/field/sign-in` when running the FieldOps deployment locally) → employee ID `FO-001` | fieldofficer@demo.kaa |
-| FieldOps admin | same sign-in → employee ID `FO-ADMIN-001` | fieldadmin@demo.kaa |
+| Role | Entity | Sign in at | Identifier | Password |
+|---|---|---|---|---|
+| Tenant | Kaa | `/app` | NIDA `19900101000000000001` (dev-mode NIDA recognises this exact number as "Demo Tenant"), then phone `+255 700 000 101` + OTP (server log) | — (NIDA + OTP, not a password) |
+| Landlord | Kaa | `/landlord/sign-in` | phone `+255 700 000 102` + OTP, **or** email `landlord@demo.kaa` | `KaaDemo@2026` (email mode only) |
+| Kaa operator | Kaa | `kaatz.vercel.app/operators/sign-in` | employee ID `KAA-OP-001` or email `operator@demo.kaa` | `KaaOperator@2026` |
+| FieldOps officer | FieldOps | `kaafieldops.vercel.app` (or `/field/sign-in` when running the FieldOps deployment locally) | employee ID `FO-001` | `FieldOps@2026` |
+| FieldOps admin | FieldOps | same sign-in | employee ID `FO-ADMIN-001` | `FieldOpsAdmin@2026` |
+
+The Kaa operator and the two FieldOps roles are checked against three entirely separate tables
+(`lib/operators`, `lib/fieldops`) — an employee ID that is valid for one means nothing to another, and
+the Kaa operator does not appear on the FieldOps sign-in roster because no row for that role exists in
+FieldOps' own employee table.
 
 The demo tenant already has an active Kaa membership and an active rental on the demo landlord's
 Mbezi apartment (rent TSh 300,000, Kaa's charge TSh 30,000, total TSh 330,000) — the whole commercial
@@ -163,8 +198,12 @@ npm --prefix web test
 │   └── src/lib/
 │       ├── access/             Entitlements and the redaction boundary
 │       ├── accounts/           NIDA, phone OTP, sessions, account store
-│       ├── auth/                One Role enum, currentActor(), requireRole() across all three identity domains
-│       ├── landlords/          Landlord identity: phone + OTP session, store
+│       ├── auth/                One Role enum, currentActor(), requireRole() across all four identity
+│       │                        domains, plus password.ts (scrypt hash/verify, shared by every role
+│       │                        that has one)
+│       ├── landlords/          Landlord identity: phone + OTP or email + password, its own session
+│       ├── operators/          Kaa operator identity — a table entirely separate from FieldOps'
+│       │                        employee table, its own session cookie, its own sign-in
 │       ├── pricing/            KAA_RENTAL_SERVICE_RATE and the rent/charge breakdown
 │       ├── demo/               The single source of truth for every demo account's credentials
 │       ├── data/               Seed dataset, org read model, tenant catalogue
@@ -235,13 +274,21 @@ API, the tenant and landlord UI — never combined into one stored figure. See
 
 Built and working:
 
-- **Role-based authentication and routing** for five roles — tenant, landlord, Kaa operator, FieldOps
-  officer, FieldOps admin — enforced in `web/src/proxy.ts` ahead of any page render, not by a
-  frontend redirect. A landlord signing in never lands on `/operators`; a Kaa operator, tenant or
-  FieldOps employee hitting another role's portal is bounced to their own. Demo accounts for every
-  role are seeded and documented below.
-- **The landlord portal** at `/landlord`: phone + OTP sign-in, a dashboard scoped to the landlord's
-  own properties, rent shown separately from Kaa's charge, and an explicit "Kaa charges you TSh 0."
+- **Role-based authentication and routing** for five roles across two entities — Kaa (tenant,
+  landlord, Kaa operator) and FieldOps (officer, admin) — each in its own identity table with its own
+  session cookie, enforced in `web/src/proxy.ts` ahead of any page render, not by a frontend redirect.
+  A landlord signing in never lands on `/operators`; a Kaa operator, tenant or FieldOps employee
+  hitting another role's portal is bounced to their own; a Kaa operator has no session that unlocks
+  FieldOps' own product, on any domain. Kaa operators, FieldOps officers and FieldOps admins sign in
+  with a real password (scrypt, salted, timing-safe compare — `web/src/lib/auth/password.ts`), never
+  by ID alone. Demo accounts for every role are seeded and documented below.
+- **FieldOps submission review lives inside Kaa Operators** (`/operators/fieldops`), not in FieldOps'
+  own portal — a Kaa operator's `approve` capability is only ever reached through their own session,
+  so there is exactly one place a submission can be approved, and FieldOps' own detail page renders
+  read-only for FieldOps staff.
+- **The landlord portal** at `/landlord`: phone + OTP or email + password sign-in, a dashboard scoped
+  to the landlord's own properties, rent shown separately from Kaa's charge, and an explicit "Kaa
+  charges you TSh 0."
 - **Kaa's rental service charge** (`web/src/lib/pricing/service-charge.ts`): a configurable rate,
   10% today, computed from the landlord's rent at read time and shown to the tenant as its own line —
   never folded into the rent, never charged to the landlord.

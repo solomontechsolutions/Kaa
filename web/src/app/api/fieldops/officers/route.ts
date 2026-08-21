@@ -21,8 +21,18 @@ export async function GET() {
       .filter((officer) => officer.role === "field_officer")
       .map((officer) => {
         const mine = all.filter((row) => row.officerId === officer.id);
+        // Never `...officer` — that would spread `passwordHash` into the
+        // response too. Every field a caller needs is listed explicitly.
         return {
-          ...officer,
+          id: officer.id,
+          employeeId: officer.employeeId,
+          fullName: officer.fullName,
+          phone: officer.phone,
+          assignedAreas: officer.assignedAreas,
+          isActive: officer.isActive,
+          startedAt: officer.startedAt,
+          lastActiveAt: officer.lastActiveAt,
+          deviceId: officer.deviceId,
           collected: mine.length,
           approved: mine.filter((row) => row.status === "APPROVED").length,
           pending: mine.filter((row) => ["UPLOADED", "UNDER_REVIEW", "RESUBMITTED"].includes(row.status)).length,

@@ -23,11 +23,14 @@ export function SubmissionsTable({
   emptyTitle,
   emptyBody,
   compact = false,
+  basePath = "/field/submissions",
 }: {
   submissions: PropertySubmission[];
   locale: Locale;
   /** Drops the columns that do not fit when the table shares a row. */
   compact?: boolean;
+  /** Where a row links to. FieldOps' own portal and Kaa Operators' review queue point at different trees. */
+  basePath?: string;
   labels: {
     reference: string;
     officer: string;
@@ -72,7 +75,7 @@ export function SubmissionsTable({
               >
                 <Td>
                   <Link
-                    href={`/field/submissions/${submission.id}`}
+                    href={`${basePath}/${submission.id}`}
                     className="tnum font-medium text-kaa-700 hover:underline dark:text-kaa-400"
                   >
                     {submission.reference}

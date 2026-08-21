@@ -1,16 +1,19 @@
 /**
- * Who is calling, across all three identity domains.
+ * Who is calling, across all four identity domains.
  *
- * Kaa deliberately keeps three separate identity stores — a tenant proves
- * who they are to NIDA, a FieldOps employee (and the Kaa operators who
- * review their work) sign in by employee record, a landlord is enrolled by
- * FieldOps and confirms a phone number. Merging them into one account table
- * would blur exactly the distinction this whole authentication pass exists
- * to enforce.
+ * Kaa deliberately keeps four separate identity stores, one per role that
+ * needs one: a tenant proves who they are to NIDA, a landlord is enrolled by
+ * FieldOps and confirms a phone or signs in with a password, a Kaa operator
+ * signs in against Kaa's own employee table, and a FieldOps employee signs
+ * in against FieldOps' — a different table on a different entity's payroll.
+ * Merging any of these would blur exactly the distinction this whole
+ * authentication pass exists to enforce, and a Kaa operator's identity in
+ * particular must never be reachable through FieldOps' session, or a
+ * tampered FieldOps cookie could claim to be Kaa staff.
  *
  * What *is* unified is how anything downstream asks "who is this and what
- * are they allowed to see" — one function, one `Role`, checked against the
- * signed cookie for whichever domain the caller belongs to. The role always
+ * are they allowed to see" — one function, one `Role`, checked against
+ * whichever domain's cookie the caller actually holds. The role always
  * comes from that domain's own store, never from the cookie, so nothing
  * short of compromising the server can promote a session from one role to
  * another.
@@ -21,22 +24,28 @@ import { redirect } from "next/navigation";
 import { getAccountId } from "@/lib/accounts/session";
 import { currentActor as currentFieldOpsActor } from "@/lib/fieldops/session";
 import { currentLandlord } from "@/lib/landlords/session";
+import { currentOperator } from "@/lib/operators/session";
 import { fromFieldOpsRole, ROLE_HOME, ROLE_SIGN_IN, type Role } from "./roles";
 
 export interface CurrentActor {
   role: Role;
-  /** The id within that role's own store — an account id, a landlord id, or an officer id. */
+  /** The id within that role's own store — an account id, a landlord id, an operator id, or an officer id. */
   id: string;
   name?: string;
 }
 
 /**
  * Resolves against every session in turn. A request only ever carries one of
- * these cookies in practice, but checking all three costs nothing and means
+ * these cookies in practice, but checking all four costs nothing and means
  * a stray cookie from another portal can never leave someone unauthenticated
  * when they are, in fact, signed in somewhere.
  */
 export async function currentActor(): Promise<CurrentActor | null> {
+  const operator = await currentOperator();
+  if (operator) {
+    return { role: "KAA_OPERATOR", id: operator.id, name: operator.fullName };
+  }
+
   const fieldOpsActor = await currentFieldOpsActor();
   if (fieldOpsActor) {
     return { role: fromFieldOpsRole(fieldOpsActor.role), id: fieldOpsActor.id, name: fieldOpsActor.name };

@@ -3,12 +3,15 @@
  *
  * A signed cookie carrying an officer id, exactly like the tenant session:
  * the role is read from the officer record on every request, never from the
- * cookie, so a tampered cookie cannot promote a field officer to a Kaa
- * operator.
+ * cookie, so a tampered cookie cannot promote a field officer to a
+ * supervisor.
  *
- * Kaa operators sign in here too. They are not FieldOps employees — the
- * `kaa_operator` role exists in this table because the review workflow spans
- * both entities and someone has to be identifiable on Kaa's side of it.
+ * Kaa operators do not sign in here, ever. FieldOps' employee table only
+ * ever holds `FieldOpsEmployeeRole` (`field_officer` | `fieldops_supervisor`)
+ * — see `lib/fieldops/types.ts` — so there is no row this cookie could
+ * resolve to that would make its holder a Kaa operator. That identity lives
+ * entirely in `lib/operators/session.ts`, a different table, a different
+ * cookie, a different sign-in page.
  */
 
 import { createHmac, timingSafeEqual } from "node:crypto";

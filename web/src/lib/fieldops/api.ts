@@ -6,20 +6,35 @@
  * this turns them into responses. A refused transition answers 409 with the
  * reason in plain words, because that reason is shown to a field officer
  * standing at a gate and has to be actionable.
+ *
+ * `withActor` resolves against two entirely separate sessions: FieldOps'
+ * own (a field officer or supervisor) and Kaa's (an operator, reviewing).
+ * They are different cookies against different tables — see
+ * `lib/fieldops/session.ts` and `lib/operators/session.ts` — checked in turn
+ * because a single request only ever carries one of them. Which one
+ * resolves decides nothing about what the actor may then do: `assertCan`
+ * below is still the only thing that grants a capability.
  */
 
 import { NextResponse } from "next/server";
 
+import { currentActor as currentOperatorActor } from "@/lib/operators/session";
 import { ForbiddenError } from "./permissions";
 import { WorkflowError } from "./service";
-import { currentActor } from "./session";
+import { currentActor as currentFieldOpsActor } from "./session";
 import type { Actor } from "./permissions";
+
+async function resolveActor(): Promise<Actor | null> {
+  const fieldOpsActor = await currentFieldOpsActor();
+  if (fieldOpsActor) return fieldOpsActor;
+  return currentOperatorActor();
+}
 
 export async function withActor(
   run: (actor: Actor) => Promise<NextResponse> | NextResponse,
 ): Promise<NextResponse> {
   try {
-    const actor = await currentActor();
+    const actor = await resolveActor();
     if (!actor) return NextResponse.json({ error: "sign_in_required" }, { status: 401 });
     return await run(actor);
   } catch (error) {

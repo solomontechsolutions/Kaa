@@ -21,6 +21,7 @@ import { SidebarLink, TabLink } from "@/components/shell/nav-link";
 import { Avatar, Badge, Input } from "@/components/ui";
 import { requireRole } from "@/lib/auth/actor";
 import { currentOrg, operatorOverview } from "@/lib/data/queries";
+import { findSubmissions } from "@/lib/fieldops/service";
 
 /** The portals are working tools, not marketing surfaces, keep them out of search. */
 export const metadata: Metadata = {
@@ -38,6 +39,10 @@ export default async function OperatorsLayout({ children }: { children: React.Re
   const actor = await requireRole("KAA_OPERATOR");
   const org = currentOrg();
   const overview = operatorOverview();
+  const pendingFieldOps = findSubmissions(
+    { id: actor.id, name: actor.name ?? "Kaa operator", role: "kaa_operator" },
+    { status: ["UPLOADED", "UNDER_REVIEW", "RESUBMITTED"] },
+  ).length;
 
   return (
     <div className="flex min-h-dvh bg-surface">
@@ -86,9 +91,10 @@ export default async function OperatorsLayout({ children }: { children: React.Re
             Network
           </p>
           <SidebarLink href="/operators/agents" icon={<ShieldCheck />} label="Field agents" />
-          {/* FieldOps is a separate entity with its own desktop portal — this
-              is Kaa's side of the same review queue, not a duplicate of it. */}
-          <SidebarLink href="/field" icon={<ClipboardCheck />} label="FieldOps submissions" />
+          {/* FieldOps is a separate entity — its own portal, its own staff.
+              This is Kaa's side of the review: the only place a Kaa operator
+              approves or sends back a FieldOps submission. */}
+          <SidebarLink href="/operators/fieldops" icon={<ClipboardCheck />} label="FieldOps submissions" badge={pendingFieldOps} />
           <SidebarLink href="/operators/settings" icon={<Settings />} label="Settings" />
         </nav>
 

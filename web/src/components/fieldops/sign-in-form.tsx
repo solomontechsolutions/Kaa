@@ -4,41 +4,36 @@ import { ArrowRight, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 
-import { FieldOpsLockup, KaaLockup } from "@/components/brand/logo";
+import { FieldOpsLockup } from "@/components/brand/logo";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
-import { Button } from "@/components/ui";
+import { Button, Input } from "@/components/ui";
 import { translator } from "@/lib/i18n";
 import type { Locale } from "@/lib/i18n/config";
-import type { FieldOpsRole } from "@/lib/fieldops/types";
+import type { FieldOpsEmployeeRole } from "@/lib/fieldops/types";
 import { cn } from "@/lib/utils";
 
 interface RosterEntry {
   employeeId: string;
   fullName: string;
-  role: FieldOpsRole;
+  role: FieldOpsEmployeeRole;
 }
 
 /**
- * Signing in to FieldOps.
+ * Signing in to FieldOps — employee id and a real password.
  *
- * A field officer lands on the handset app, a supervisor and a Kaa operator
- * land in the portal — decided by the role on their record, not by which URL
- * they typed, so an officer cannot reach the review queue by guessing a path.
+ * Only two roles ever reach this form: a field officer, who lands on the
+ * handset app, and a FieldOps supervisor/admin, who lands in the desktop
+ * portal. There is no third option here — a Kaa operator is not a FieldOps
+ * employee and does not appear on this roster or sign in through this form;
+ * their sign-in is `/operators/sign-in`, on Kaa's own domain, against Kaa's
+ * own employee table.
  */
-export function SignInForm({
-  locale,
-  roster,
-  brand = "fieldops",
-}: {
-  locale: Locale;
-  roster: RosterEntry[];
-  /** `/operators/sign-in` uses the same form on Kaa's own lockup, not FieldOps'. */
-  brand?: "fieldops" | "operators";
-}) {
+export function SignInForm({ locale, roster }: { locale: Locale; roster: RosterEntry[] }) {
   const router = useRouter();
   const t = React.useMemo(() => translator(locale), [locale]);
 
   const [employeeId, setEmployeeId] = React.useState("");
+  const [password, setPassword] = React.useState("");
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -51,7 +46,7 @@ export function SignInForm({
       const response = await fetch("/api/fieldops/session", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ employeeId }),
+        body: JSON.stringify({ employeeId, password }),
       });
       const payload = await response.json();
 
@@ -60,18 +55,10 @@ export function SignInForm({
         return;
       }
 
-      // Three roles sign in here, three different homes: an officer collects
-      // on the handset, a supervisor runs the FieldOps desktop, and a Kaa
-      // operator is not a FieldOps employee at all — their home is Kaa's own
-      // internal admin, with a link back into FieldOps' review queue from
-      // there (see the "FieldOps submissions" link in /operators).
-      const home =
-        payload.actor.role === "field_officer"
-          ? "/field/app"
-          : payload.actor.role === "kaa_operator"
-            ? "/operators"
-            : "/field";
-      router.push(home);
+      // A field officer collects on the handset; a supervisor/admin runs the
+      // FieldOps desktop portal. Decided by the role on their record, not by
+      // which URL they typed.
+      router.push(payload.actor.role === "field_officer" ? "/field/app" : "/field");
       router.refresh();
     } catch {
       setError(t("common.somethingWentWrong"));
@@ -83,7 +70,7 @@ export function SignInForm({
   return (
     <div className="flex min-h-dvh flex-col bg-surface">
       <header className="flex h-16 items-center justify-between px-5 lg:px-8">
-        {brand === "operators" ? <KaaLockup surface="Operators" /> : <FieldOpsLockup compact />}
+        <FieldOpsLockup compact />
         <LanguageSwitcher current={locale} />
       </header>
 
@@ -97,15 +84,29 @@ export function SignInForm({
               <label htmlFor="employee-id" className="mb-2 block text-sm font-medium">
                 {t("fieldops.employeeId")}
               </label>
-              <input
+              <Input
                 id="employee-id"
                 value={employeeId}
                 onChange={(event) => setEmployeeId(event.target.value)}
                 autoComplete="username"
                 placeholder="FO-0142"
-                className="h-12 w-full rounded-xl border border-border bg-surface-raised px-4 text-base outline-none transition-colors focus:border-kaa-400 focus:ring-2 focus:ring-kaa-500/25"
+                className="h-12"
               />
               <p className="mt-2 text-xs text-foreground-subtle">{t("fieldops.employeeIdHelp")}</p>
+            </div>
+
+            <div>
+              <label htmlFor="employee-password" className="mb-2 block text-sm font-medium">
+                Password
+              </label>
+              <Input
+                id="employee-password"
+                type="password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                autoComplete="current-password"
+                className="h-12"
+              />
             </div>
 
             {error && (
@@ -114,7 +115,7 @@ export function SignInForm({
               </p>
             )}
 
-            <Button type="submit" size="lg" className="w-full" disabled={busy || employeeId.trim().length < 2}>
+            <Button type="submit" size="lg" className="w-full" disabled={busy || employeeId.trim().length < 2 || !password}>
               {busy ? <Loader2 className="animate-spin" /> : <ArrowRight />}
               {t("fieldops.signIn")}
             </Button>
@@ -126,8 +127,7 @@ export function SignInForm({
                 Demo accounts
               </p>
               <p className="mt-1.5 text-xs leading-relaxed text-foreground-muted">
-                This deployment has no credential store yet, so these sign in by ID alone. Say so to
-                anyone you hand the URL to.
+                Passwords are in the README, not shown here. Click a name to fill in the employee ID.
               </p>
               <ul className="mt-3 space-y-1">
                 {roster.map((entry) => (

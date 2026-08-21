@@ -56,6 +56,17 @@ export const ROLE_SIGN_IN: Record<Role, string> = {
   FIELDOPS_ADMIN: "/field/sign-in",
 };
 
+/**
+ * `Actor.role` (the permission-tier type FieldOps' service layer uses) is
+ * still three-valued — a Kaa operator reviewing a submission is a valid
+ * `Actor`, built from `lib/operators/session.ts`. This map exists for
+ * completeness against that type; in practice `lib/fieldops/session.ts`'
+ * own `currentActor()` can never actually produce `"kaa_operator"`, because
+ * FieldOps' employee table cannot hold that role (`FieldOpsEmployeeRole` —
+ * see `lib/fieldops/types.ts`) and there is no other path onto that cookie.
+ * `lib/auth/actor.ts` resolves `KAA_OPERATOR` from `lib/operators/session.ts`
+ * directly and never calls this function for that case.
+ */
 const FIELDOPS_ROLE_TO_ROLE: Record<FieldOpsRole, Role> = {
   field_officer: "FIELDOPS_OFFICER",
   fieldops_supervisor: "FIELDOPS_ADMIN",

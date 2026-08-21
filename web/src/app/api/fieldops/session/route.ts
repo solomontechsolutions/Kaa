@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { verifyPassword } from "@/lib/auth/password";
 import { FIELDOPS_COOKIE, currentActor, fieldOpsCookieOptions, issueFieldOpsToken } from "@/lib/fieldops/session";
 import { getOfficer, listOfficers } from "@/lib/fieldops/store";
 import { readBody } from "@/lib/fieldops/api";
 
-const schema = z.object({ employeeId: z.string().min(2).max(40) });
+const schema = z.object({ employeeId: z.string().min(2).max(40), password: z.string().min(1).max(200) });
 
 /** Who am I? Used by both the portal and the handset app on load. */
 export async function GET() {
@@ -26,13 +27,13 @@ export async function GET() {
 }
 
 /**
- * Sign in by employee ID.
+ * Sign in by employee ID and password.
  *
- * No password yet, and that is stated rather than hidden: FieldOps issues the
- * handsets and the portal is not public, so this is identification, not
- * authentication. Before this carries real operational data it needs a
- * credential — the boundary is here, in one function, so adding one does not
- * touch anything above it.
+ * Only ever matches a row in FieldOps' own employee table — `listOfficers()`
+ * cannot return a Kaa operator, because no such row exists there. A Kaa
+ * operator's credentials are checked against a different table entirely
+ * (`/api/operators/session`), so even a correct email-shaped identifier
+ * typed here has nothing to match against.
  */
 export async function POST(request: Request) {
   const body = await readBody<unknown>(request);
@@ -45,6 +46,9 @@ export async function POST(request: Request) {
 
   if (!officer) return NextResponse.json({ error: "unknown_employee" }, { status: 404 });
   if (!officer.isActive) return NextResponse.json({ error: "inactive" }, { status: 403 });
+  if (!verifyPassword(parsed.data.password, officer.passwordHash)) {
+    return NextResponse.json({ error: "unknown_employee" }, { status: 404 });
+  }
 
   const response = NextResponse.json({
     ok: true,

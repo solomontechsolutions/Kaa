@@ -1,9 +1,9 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-import { fromFieldOpsRole, ROLE_HOME, ROLE_SIGN_IN } from "@/lib/auth/roles";
-import { actorFromToken, FIELDOPS_COOKIE } from "@/lib/fieldops/session";
+import { ROLE_SIGN_IN } from "@/lib/auth/roles";
 import { landlordFromToken, LANDLORD_COOKIE } from "@/lib/landlords/session";
+import { operatorFromToken, OPERATOR_COOKIE } from "@/lib/operators/session";
 
 /**
  * Runs first on every matched request. Three jobs.
@@ -14,7 +14,11 @@ import { landlordFromToken, LANDLORD_COOKIE } from "@/lib/landlords/session";
  *    • `kaatz.vercel.app` — the public site, Kaa Operators, and the Kaa app.
  *      It does **not** serve Field Ops. A request for /field here is a 404,
  *      not a redirect, because Field Ops is not a page of the Kaa website and
- *      should not be discoverable from it.
+ *      should not be discoverable from it. This is unconditional: even a
+ *      signed-in Kaa operator gets the 404 — Kaa operators review FieldOps
+ *      submissions from inside `/operators`, not by visiting FieldOps'
+ *      product, so there is no session that should ever unlock this tree on
+ *      this domain.
  *
  *    • `kaafieldops.vercel.app` — sets NEXT_PUBLIC_KAA_SURFACE=fieldops and
  *      serves only Kaa Field Ops, mounted at its own root, so an agent's day
@@ -28,7 +32,10 @@ import { landlordFromToken, LANDLORD_COOKIE } from "@/lib/landlords/session";
  *    Router, so a `redirect()` there does not stop the page underneath it
  *    from running for one tick. Denying here, in the one place every request
  *    passes through first, is what makes this a backend rule and not a
- *    frontend redirect.
+ *    frontend redirect. `/operators` checks Kaa's own operator session
+ *    (`lib/operators/session.ts`) — never FieldOps' — because a Kaa operator
+ *    is not a FieldOps employee and the two sessions are unrelated cookies
+ *    against unrelated tables.
  *
  * 3. Supabase session refresh. Server Components cannot write cookies, so a
  *    rotated refresh token has nowhere to land unless something upstream does
@@ -52,10 +59,10 @@ function enforceRole(request: NextRequest): NextResponse | null {
 
   if (pathname === "/operators" || pathname.startsWith("/operators/")) {
     if (pathname === "/operators/sign-in") return null;
-    const actor = actorFromToken(request.cookies.get(FIELDOPS_COOKIE)?.value);
-    if (!actor || actor.role !== "kaa_operator") {
+    const operator = operatorFromToken(request.cookies.get(OPERATOR_COOKIE)?.value);
+    if (!operator) {
       const url = request.nextUrl.clone();
-      url.pathname = actor ? ROLE_HOME[fromFieldOpsRole(actor.role)] : ROLE_SIGN_IN.KAA_OPERATOR;
+      url.pathname = ROLE_SIGN_IN.KAA_OPERATOR;
       return NextResponse.redirect(url);
     }
     return null;
@@ -102,19 +109,12 @@ function routeForSurface(request: NextRequest): NextResponse | null {
 
   // The main deployment. Field Ops lives at its own domain and its own Vercel
   // project; serving it here as well would give the public surface two URLs,
-  // one of them reachable from the marketing site.
-  //
-  // A signed-in Kaa operator is the one exception: their home is /operators,
-  // on *this* domain, and reviewing FieldOps submissions is part of that job
-  // (see the "FieldOps submissions" link in /operators). Letting their
-  // already-authenticated request through does not make FieldOps
-  // discoverable — nobody without that session reaches anything past this
-  // check, so the marketing site still never links or leaks a working /field
-  // URL to the public.
+  // one of them reachable from the marketing site. No session on this domain
+  // unlocks it — not a landlord's, not a tenant's, and not a Kaa operator's.
+  // A Kaa operator reviews FieldOps submissions from `/operators/fieldops`,
+  // which reads the same submission store directly; they have no reason to
+  // ever be sent to FieldOps' own product, on this domain or FieldOps'.
   if (pathname === "/field" || pathname.startsWith("/field/")) {
-    const actor = actorFromToken(request.cookies.get(FIELDOPS_COOKIE)?.value);
-    if (actor?.role === "kaa_operator") return null;
-
     // Rewriting to a path no route matches renders `app/not-found.tsx` with a
     // 404. A redirect would be worse: it would leave the impression that Field
     // Ops has an address on this domain and is merely elsewhere today.
@@ -128,10 +128,11 @@ function routeForSurface(request: NextRequest): NextResponse | null {
 
 export async function proxy(request: NextRequest) {
   // Role enforcement runs against the real pathname, before the surface
-  // rewrite. Neither tree exists on the Field Ops deployment — a request for
-  // them there is someone poking at a URL that only makes sense on the main
-  // site, so it is left to the surface routing below to turn into Field Ops'
-  // own 404 rather than being redirected as if it were a denied Kaa session.
+  // rewrite. Neither `/operators` nor `/landlord` exist on the Field Ops
+  // deployment — a request for them there is someone poking at a URL that
+  // only makes sense on the main site, so it is left to the surface routing
+  // below to turn into Field Ops' own 404 rather than being redirected as if
+  // it were a denied Kaa session.
   if (SURFACE !== "fieldops") {
     const denied = enforceRole(request);
     if (denied) return denied;

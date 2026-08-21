@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import { Avatar } from "@/components/ui";
 
 /**
- * Kaa operators sign in through the FieldOps session (see the comment on
- * `lib/fieldops/session.ts` for why) — so signing out here clears that same
- * cookie, the one `/api/fieldops/session` issued.
+ * Kaa operators sign in through their own session (`lib/operators/session.ts`,
+ * cookie `kaa_operator_session`) — a separate table and cookie from
+ * FieldOps'. Signing out here clears that cookie via `/api/operators/session`.
  */
 export function OperatorIdentity({ name }: { name: string }) {
   const router = useRouter();
@@ -16,7 +16,7 @@ export function OperatorIdentity({ name }: { name: string }) {
     <button
       type="button"
       onClick={async () => {
-        await fetch("/api/fieldops/session", { method: "DELETE" });
+        await fetch("/api/operators/session", { method: "DELETE" });
         router.push("/operators/sign-in");
         router.refresh();
       }}
