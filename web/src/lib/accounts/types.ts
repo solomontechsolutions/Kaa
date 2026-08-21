@@ -30,6 +30,16 @@ export interface Account {
   /** E.164 WhatsApp number, once the conversation is linked to this account. */
   whatsappPhone?: string;
 
+  /**
+   * The `lib/data` lease this tenant is currently renting through Kaa, if
+   * any. A tenant account can exist — verified, even paying the membership —
+   * with no active rental; this is what makes "Kaa charges the tenant 10% of
+   * the rent" a per-rental fact rather than something a member is always
+   * billed. Set once a lease is signed, read by the tenancy screen to show
+   * the landlord's rent and Kaa's service charge, kept separate.
+   */
+  activeLeaseId?: string;
+
   preferredLanguage: Locale;
   createdAt: string;
   updatedAt: string;

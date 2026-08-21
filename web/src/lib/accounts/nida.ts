@@ -20,6 +20,8 @@
 
 import { createHash, createHmac } from "node:crypto";
 
+import { DEMO_TENANT } from "@/lib/demo/credentials";
+
 export interface NidaIdentity {
   fullName: string;
   dateOfBirth?: string;
@@ -100,6 +102,25 @@ export async function verifyNida(rawNumber: string): Promise<NidaResult> {
   if (!configured) {
     // Development. The number is well-formed, so the flow can be exercised end
     // to end, but the identity is obviously synthetic and labelled as such.
+    //
+    // One specific number is reserved for the seeded demo tenant, so signing
+    // up with it reconnects to that same account (see `lib/accounts/seed.ts`)
+    // instead of minting a new "Development Test Identity" every time — a
+    // reviewer can use the documented demo NIDA number and land on an account
+    // that already has an active membership and an active rental.
+    if (nida === DEMO_TENANT.nida) {
+      return {
+        ok: true,
+        source: "development",
+        identity: {
+          fullName: DEMO_TENANT.fullName,
+          dateOfBirth: "1994-06-18",
+          sex: "female",
+          nationality: "Tanzanian",
+        },
+      };
+    }
+
     return {
       ok: true,
       source: "development",

@@ -15,6 +15,7 @@
 import { randomUUID } from "node:crypto";
 
 import { isSupabaseConfigured } from "@/lib/supabase/server";
+import { seedAccounts, seedSubscriptions } from "./seed";
 import type { Account, SavedProperty, Subscription } from "./types";
 
 interface Tables {
@@ -34,15 +35,21 @@ interface Tables {
 const globalStore = globalThis as unknown as { __kaaStore?: Tables };
 
 function tables(): Tables {
-  globalStore.__kaaStore ??= {
-    accounts: new Map(),
-    nidaIndex: new Map(),
-    phoneIndex: new Map(),
-    whatsappIndex: new Map(),
-    subscriptions: new Map(),
-    paymentIndex: new Map(),
-    saved: new Map(),
-  };
+  if (!globalStore.__kaaStore) {
+    const accounts = new Map(seedAccounts().map((row) => [row.id, row]));
+    const subscriptions = new Map(seedSubscriptions().map((row) => [row.id, row]));
+    globalStore.__kaaStore = {
+      accounts,
+      nidaIndex: new Map([...accounts.values()].filter((a) => a.nidaHash).map((a) => [a.nidaHash!, a.id])),
+      phoneIndex: new Map([...accounts.values()].filter((a) => a.phone).map((a) => [a.phone!, a.id])),
+      whatsappIndex: new Map(
+        [...accounts.values()].filter((a) => a.whatsappPhone).map((a) => [a.whatsappPhone!, a.id]),
+      ),
+      subscriptions,
+      paymentIndex: new Map([...subscriptions.values()].map((s) => [s.paymentReference, s.id])),
+      saved: new Map(),
+    };
+  }
   return globalStore.__kaaStore;
 }
 

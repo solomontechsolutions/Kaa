@@ -90,6 +90,19 @@ export const organizations: Organization[] = [
     isVerified: false,
     createdAt: day(-95),
   },
+  {
+    // The landlord portal's demo account. Kept as its own org, the way a real
+    // individual landlord is, rather than folded into Mwanga Properties'
+    // portfolio — Ally Rashid's operator sign-in has no business seeing it.
+    id: "org-demo-landlord",
+    name: "Demo Landlord",
+    slug: "demo-landlord",
+    type: "individual_landlord",
+    contactPhone: "+255700000102",
+    contactEmail: "landlord@demo.kaa",
+    isVerified: true,
+    createdAt: day(-200),
+  },
 ];
 
 /** The org the signed-in operator is currently working in. */
@@ -281,6 +294,29 @@ export const properties: Property[] = [
     sourcedByAgentId: "agent-said",
     createdAt: day(-12),
   },
+  {
+    // The property the tenant and landlord demo dashboards both point at —
+    // one real rental so the commercial model has actual numbers to show:
+    // landlord rent 300,000, Kaa's 10% recurring charge computed from it.
+    id: "prop-demo-mbezi",
+    orgId: "org-demo-landlord",
+    name: "2 Bedroom Apartment — Mbezi",
+    type: "apartment_block",
+    wardId: "w-mbezi",
+    ward: "Mbezi",
+    district: "Ubungo",
+    addressLine: "Mbezi Beach, Salasala Road",
+    landmark: "Karibu na Mbezi Beach bus stand",
+    latitude: -6.7286,
+    longitude: 39.2124,
+    description: "Two-bedroom unit in a small, quiet compound. Demo listing for the Kaa landlord portal.",
+    totalUnits: 1,
+    caretakerName: "Demo Landlord",
+    caretakerPhone: "+255700000102",
+    isVerified: true,
+    verifiedAt: day(-30),
+    createdAt: day(-40),
+  },
 ];
 
 export const units: Unit[] = [
@@ -442,6 +478,18 @@ export const units: Unit[] = [
     status: "occupied", listingState: "unlisted", viewCount: 0,
     amenities: ["shared_water", "luku"], images: [],
   },
+
+  // Demo landlord's Mbezi apartment — the demo tenant's active rental.
+  {
+    id: "unit-demo-mbezi", propertyId: "prop-demo-mbezi", label: "Main House",
+    bedrooms: 2, bathrooms: 1, sizeSqm: 68, floor: 0, furnishing: "unfurnished",
+    // The landlord's actual rent. Kaa's 10% service charge is computed from
+    // this at read time (see src/lib/pricing/service-charge.ts) — it is never
+    // added into this figure.
+    rentAmount: 300_000, rentPeriod: "month", depositMonths: 1, advanceMonths: 3,
+    status: "occupied", listingState: "unlisted", viewCount: 34,
+    amenities: ["water_tank", "security", "luku"], images: [],
+  },
 ];
 
 // ── Amenity catalogue ──────────────────────────────────────────────────
@@ -567,6 +615,10 @@ export const tenants: Tenant[] = [
   { id: "ten-6", orgId: "org-mwanga", fullName: "Ibrahim Kessy", phone: "+255718445599", nidaStatus: "unverified", createdAt: day(-88) },
   { id: "ten-7", orgId: "org-mwanga", fullName: "Neema Sanga", phone: "+255754990011", email: "neema.sanga@gmail.com", nidaStatus: "verified", createdAt: day(-55) },
   { id: "ten-8", orgId: "org-mwanga", fullName: "Frank Mtei", phone: "+255786220044", nidaStatus: "verified", createdAt: day(-30) },
+  {
+    id: "ten-demo", orgId: "org-demo-landlord", fullName: "Demo Tenant", phone: "+255700000101",
+    email: "tenant@demo.kaa", nidaStatus: "verified", createdAt: day(-60),
+  },
 ];
 
 export const leases: Lease[] = [
@@ -579,6 +631,10 @@ export const leases: Lease[] = [
   { id: "lse-7", reference: "KAA-LSE-2026-00301", unitId: "unit-uh-2a", tenantId: "ten-7", orgId: "org-mwanga", startDate: dateOnly(-52), endDate: dateOnly(313), rentAmount: 1_400_000, depositAmount: 2_800_000, paymentDay: 1, status: "active", signedAt: day(-54), matchedByAgentId: "agent-grace", commissionRate: 5 },
   { id: "lse-8", reference: "KAA-LSE-2026-00312", unitId: "unit-uh-3b", tenantId: "ten-8", orgId: "org-mwanga", startDate: dateOnly(-26), endDate: dateOnly(339), rentAmount: 1_800_000, depositAmount: 3_600_000, paymentDay: 1, status: "active", signedAt: day(-28), matchedByAgentId: "agent-grace", commissionRate: 5 },
   { id: "lse-9", reference: "KAA-LSE-2026-00320", unitId: "unit-ks-2", tenantId: "ten-3", orgId: "org-mwanga", startDate: dateOnly(-14), endDate: dateOnly(351), rentAmount: 230_000, depositAmount: 230_000, paymentDay: 5, status: "pending_signature", commissionRate: 5 },
+  // Demo tenant ↔ demo landlord's Mbezi apartment. `rentAmount` here is the
+  // landlord's rent only — Kaa's 10% service charge is a separate, derived
+  // figure shown on top of it, never folded into this column.
+  { id: "lse-demo", reference: "KAA-LSE-2026-DEMO01", unitId: "unit-demo-mbezi", tenantId: "ten-demo", orgId: "org-demo-landlord", startDate: dateOnly(-60), endDate: dateOnly(305), rentAmount: 300_000, depositAmount: 300_000, paymentDay: 1, status: "active", signedAt: day(-62), commissionRate: 0 },
 ];
 
 /** Twelve months of invoices per active lease, back-dated from the lease start. */

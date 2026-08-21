@@ -68,18 +68,30 @@ export const fieldOpsCookieOptions = {
   maxAge: TTL_SECONDS,
 };
 
-/** The actor for this request, or null when nobody is signed in. */
-export async function currentActor(): Promise<Actor | null> {
-  const store = await cookies();
-  const officerId = readFieldOpsToken(store.get(FIELDOPS_COOKIE)?.value);
+/**
+ * The pure lookup, taking the raw cookie value rather than reading it.
+ *
+ * `next/headers`' `cookies()` only works inside the App Router's
+ * request-scoped context (Server Components, Route Handlers) — not inside
+ * `proxy.ts`, which gets the cookie from `NextRequest` instead. Both callers
+ * need the same rule — role comes from the officer record, not the cookie,
+ * so a deactivated officer loses access at their next request rather than
+ * their next sign-in — so that rule lives here once.
+ */
+export function actorFromToken(token: string | undefined): Actor | null {
+  const officerId = readFieldOpsToken(token);
   if (!officerId) return null;
 
   const officer = getOfficer(officerId);
-  // Role comes from the record, not the cookie. A deactivated officer loses
-  // access at their next request rather than at their next sign-in.
   if (!officer || !officer.isActive) return null;
 
   return { id: officer.id, name: officer.fullName, role: officer.role };
+}
+
+/** The actor for this request, or null when nobody is signed in. */
+export async function currentActor(): Promise<Actor | null> {
+  const store = await cookies();
+  return actorFromToken(store.get(FIELDOPS_COOKIE)?.value);
 }
 
 /**

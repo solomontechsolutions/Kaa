@@ -1,8 +1,12 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { fromFieldOpsRole, ROLE_HOME } from "@/lib/auth/roles";
+import { actorFromToken, FIELDOPS_COOKIE } from "@/lib/fieldops/session";
+import { landlordFromToken, LANDLORD_COOKIE } from "@/lib/landlords/session";
+
 /**
- * Runs first on every matched request. Two jobs.
+ * Runs first on every matched request. Three jobs.
  *
  * 1. Surface routing. The same codebase is deployed to Vercel twice, and the
  *    two deployments are separate products with separate audiences.
@@ -17,7 +21,16 @@ import { NextResponse, type NextRequest } from "next/server";
  *      is at `/` and `/capture` is the capture flow. Anything outside the
  *      Field Ops tree on that host is rewritten into it.
  *
- * 2. Supabase session refresh. Server Components cannot write cookies, so a
+ * 2. Role enforcement for `/operators` and `/landlord`. This is the fix for
+ *    "Landlord sign in opens the operator admin": those two trees now check
+ *    who is actually signed in *before* anything renders, not after, and not
+ *    only in a layout — a layout and its page render in parallel in the App
+ *    Router, so a `redirect()` there does not stop the page underneath it
+ *    from running for one tick. Denying here, in the one place every request
+ *    passes through first, is what makes this a backend rule and not a
+ *    frontend redirect.
+ *
+ * 3. Supabase session refresh. Server Components cannot write cookies, so a
  *    rotated refresh token has nowhere to land unless something upstream does
  *    it. The symptom otherwise is users logged out at random.
  *
@@ -26,6 +39,39 @@ import { NextResponse, type NextRequest } from "next/server";
  */
 
 const SURFACE = process.env.NEXT_PUBLIC_KAA_SURFACE;
+
+/**
+ * `/operators` needs a signed-in Kaa operator; `/landlord` (past sign-in)
+ * needs a signed-in landlord. Both read the raw cookie directly — `proxy.ts`
+ * has no access to `next/headers`' `cookies()`, which only works inside the
+ * request-scoped App Router context — and both look the id up in that
+ * domain's own store, never trusting a role carried in the cookie itself.
+ */
+function enforceRole(request: NextRequest): NextResponse | null {
+  const { pathname } = request.nextUrl;
+
+  if (pathname === "/operators" || pathname.startsWith("/operators/")) {
+    const actor = actorFromToken(request.cookies.get(FIELDOPS_COOKIE)?.value);
+    if (!actor || actor.role !== "kaa_operator") {
+      const url = request.nextUrl.clone();
+      url.pathname = actor ? ROLE_HOME[fromFieldOpsRole(actor.role)] : "/field/sign-in";
+      return NextResponse.redirect(url);
+    }
+    return null;
+  }
+
+  if (pathname.startsWith("/landlord") && pathname !== "/landlord/sign-in") {
+    const landlord = landlordFromToken(request.cookies.get(LANDLORD_COOKIE)?.value);
+    if (!landlord) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/landlord/sign-in";
+      return NextResponse.redirect(url);
+    }
+    return null;
+  }
+
+  return null;
+}
 
 /** Paths that must resolve literally, whatever surface is being served. */
 const PASSTHROUGH = [
@@ -69,6 +115,16 @@ function routeForSurface(request: NextRequest): NextResponse | null {
 }
 
 export async function proxy(request: NextRequest) {
+  // Role enforcement runs against the real pathname, before the surface
+  // rewrite. Neither tree exists on the Field Ops deployment — a request for
+  // them there is someone poking at a URL that only makes sense on the main
+  // site, so it is left to the surface routing below to turn into Field Ops'
+  // own 404 rather than being redirected as if it were a denied Kaa session.
+  if (SURFACE !== "fieldops") {
+    const denied = enforceRole(request);
+    if (denied) return denied;
+  }
+
   const routed = routeForSurface(request);
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;

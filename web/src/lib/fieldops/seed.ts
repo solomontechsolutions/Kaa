@@ -11,6 +11,7 @@
  * asked there.
  */
 
+import { DEMO_FIELDOPS_ADMIN, DEMO_FIELDOPS_OFFICER, DEMO_KAA_OPERATOR } from "@/lib/demo/credentials";
 import type { Assignment, AuditEvent, FieldOfficer, PropertySubmission, SubmissionStatus } from "./types";
 
 const HOUR = 3_600_000;
@@ -95,6 +96,44 @@ export function seedOfficers(): FieldOfficer[] {
       startedAt: "2025-08-04",
       lastActiveAt: hoursAgo(1),
     },
+
+    // ── Demo accounts, one per role, so a reviewer can sign in and try every
+    //    portal without inventing credentials. Their employee ids match what
+    //    the sign-in page and product spec both document.
+    {
+      id: "demo-fieldops-officer",
+      employeeId: DEMO_FIELDOPS_OFFICER.employeeId,
+      fullName: DEMO_FIELDOPS_OFFICER.fullName,
+      phone: "+255700000103",
+      role: "field_officer",
+      assignedAreas: ["Mbezi", "Kawe"],
+      isActive: true,
+      startedAt: "2026-01-01",
+      lastActiveAt: hoursAgo(2),
+      deviceId: "PDU-DEMO",
+    },
+    {
+      id: "demo-fieldops-admin",
+      employeeId: DEMO_FIELDOPS_ADMIN.employeeId,
+      fullName: DEMO_FIELDOPS_ADMIN.fullName,
+      phone: "+255700000104",
+      role: "fieldops_supervisor",
+      assignedAreas: ["Kinondoni", "Ubungo", "Ilala", "Temeke", "Kigamboni"],
+      isActive: true,
+      startedAt: "2026-01-01",
+      lastActiveAt: hoursAgo(2),
+    },
+    {
+      id: "demo-kaa-operator",
+      employeeId: DEMO_KAA_OPERATOR.employeeId,
+      fullName: DEMO_KAA_OPERATOR.fullName,
+      phone: "+255700000105",
+      role: "kaa_operator",
+      assignedAreas: [],
+      isActive: true,
+      startedAt: "2026-01-01",
+      lastActiveAt: hoursAgo(2),
+    },
   ];
 }
 
@@ -123,6 +162,11 @@ const HAMISI = { id: "fo-hamisi", name: "Hamisi Mwakalinga", role: "field_office
 const ASHA = { id: "fo-asha", name: "Asha Mbwana", role: "field_officer" as const };
 const MUSA = { id: "fo-musa", name: "Musa Kileo", role: "field_officer" as const };
 const SARAH = { id: "ko-sarah", name: "Sarah Mushi", role: "kaa_operator" as const };
+const DEMO_OFFICER = {
+  id: "demo-fieldops-officer",
+  name: DEMO_FIELDOPS_OFFICER.fullName,
+  role: "field_officer" as const,
+};
 
 interface Draft {
   id: string;
@@ -183,6 +227,15 @@ const DRAFTS: Draft[] = [
     ward: "Mikocheni", district: "Kinondoni", area: "Mikocheni A", bedrooms: 3, bathrooms: 2,
     rent: 950_000, amenities: ["parking", "security"], photos: 2,
     createdHoursAgo: 1, submissionCount: 0,
+  },
+  {
+    // A correction already waiting on the demo field officer, so signing in
+    // as them immediately demonstrates "receive a correction, fix it,
+    // re-upload" rather than needing a fresh submission built from scratch.
+    id: "sub-demo-243", reference: "KA-000243", status: "CORRECTION_REQUIRED", officer: DEMO_OFFICER,
+    ward: "Mbezi", district: "Ubungo", area: "Mbezi Beach", bedrooms: 2, bathrooms: 1,
+    rent: 340_000, amenities: ["water_tank", "security"], photos: 4,
+    createdHoursAgo: 5, submissionCount: 1,
   },
 ];
 
