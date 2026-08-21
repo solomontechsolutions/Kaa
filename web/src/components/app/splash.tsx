@@ -21,8 +21,10 @@ let played = false;
  *
  * Kaa installed to a home screen has no browser chrome and no loading bar, so
  * the first thing a tenant sees is whatever the app paints. This paints the
- * mark: it arrives, settles, and the claws pick up their idle loop, then the
- * whole thing fades and the app is underneath it.
+ * mark: it arrives, settles, and fades, and the app is underneath it.
+ *
+ * The motion is applied to the whole mark. The artwork itself is the approved
+ * one and is never taken apart or recoloured to animate.
  *
  * Someone who has asked their system for reduced motion gets the app straight
  * away — the global `prefers-reduced-motion` rule flattens the animation, and
@@ -51,7 +53,7 @@ export function Splash({ greeting, tagline }: { greeting: string; tagline: strin
       <div className="relative flex items-center justify-center">
         <span className="kaa-splash-ring absolute size-40 rounded-full border border-kaa-500/40" />
         <span className="kaa-splash-mark">
-          <KaaMark className="size-24 text-kaa-500" gradient animated id="splash" />
+          <KaaMark className="size-24" />
         </span>
       </div>
 

@@ -10,7 +10,6 @@ const nav = [
   { href: "/how-it-works", label: "How it works" },
   { href: "/landlords", label: "Landlords" },
   { href: "/whatsapp", label: "WhatsApp" },
-  { href: "/field-ops", label: "Field Ops" },
   { href: "/pricing", label: "Pricing" },
 ];
 
@@ -61,7 +60,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         <div className="shell py-16">
           <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-[1.6fr_1fr_1fr_1fr]">
             <div>
-              <KaaWordmark showTagline animated />
+              <KaaWordmark showTagline />
               <p className="mt-5 max-w-xs text-sm leading-relaxed text-foreground-muted">
                 Tanzania&rsquo;s managed rental platform. Every property visited, verified and run by Kaa
                 Field Ops. Every tenant vetted on NIDA.
@@ -78,11 +77,12 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
                 { href: "/app", label: "Open the app" },
               ]}
             />
+            {/* FieldOps is a separate operating entity and is not linked from
+                the tenant site. Its people reach it at its own domain. */}
             <FooterColumn
               title="Partners"
               links={[
                 { href: "/landlords", label: "For landlords" },
-                { href: "/field-ops", label: "Become an agent" },
                 { href: "/operators", label: "Operator sign in" },
               ]}
             />
@@ -101,7 +101,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
               © <span className="tnum">{new Date().getFullYear()}</span> Kaa. All rights reserved.
             </p>
             <p className="flex items-center gap-2 text-sm text-foreground-subtle">
-              <KaaMark className="size-4 text-kaa-500" />
+              <KaaMark className="size-4" />
               Stay. Settle. Belong.
             </p>
           </div>

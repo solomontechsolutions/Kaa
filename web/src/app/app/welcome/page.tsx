@@ -26,7 +26,7 @@ export default async function WelcomePage() {
       </div>
 
       <div className="flex flex-1 flex-col justify-center py-8">
-        <KaaMark className="size-16 text-kaa-500" gradient animated id="welcome" />
+        <KaaMark className="size-16" />
 
         <h1 className="mt-8 text-balance text-3xl font-semibold leading-[1.15] tracking-tight">
           {t("welcome.title")}

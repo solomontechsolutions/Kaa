@@ -28,7 +28,7 @@ export default function AboutPage() {
       <section className="py-20 lg:py-24">
         <div className="mx-auto grid w-full max-w-5xl gap-12 px-5 lg:grid-cols-[1fr_1.3fr] lg:px-8">
           <div>
-            <KaaMark className="size-16 text-kaa-500" gradient id="about-mark" />
+            <KaaMark className="size-16" />
             <p className="mt-5 text-sm font-semibold uppercase tracking-wider text-foreground-subtle">
               The name
             </p>
@@ -99,9 +99,6 @@ export default function AboutPage() {
           <div className="mt-12 flex flex-wrap gap-3">
             <ButtonLink href="/#get-the-app" size="lg">
               Join the waitlist
-            </ButtonLink>
-            <ButtonLink href="/field-ops" size="lg" variant="outline">
-              Work with us
             </ButtonLink>
           </div>
         </div>

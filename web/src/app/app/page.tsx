@@ -38,7 +38,7 @@ export default async function AppHomePage() {
       <header className="sticky top-0 z-20 bg-background/85 px-5 pb-3 pt-[calc(env(safe-area-inset-top)+1rem)] backdrop-blur-xl">
         <div className="flex items-center justify-between gap-2">
           <div className="flex min-w-0 items-center gap-2.5">
-            <KaaMark className="size-8 shrink-0 text-kaa-500" gradient id="app-home" />
+            <KaaMark className="size-8 shrink-0" />
             <div className="min-w-0">
               <p className="truncate text-xs text-foreground-subtle">{t("splash.greeting")}</p>
               <p className="truncate text-sm font-semibold leading-tight">{t("welcome.title")}</p>

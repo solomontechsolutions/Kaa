@@ -223,7 +223,7 @@ export default function WhatsAppPage() {
       <section id="join" className="border-t border-border bg-surface py-24 lg:py-28">
         <div className="shell">
           <Reveal className="mx-auto max-w-2xl text-center">
-            <KaaMark className="mx-auto size-14 text-kaa-500" gradient animated id="wa-cta" />
+            <KaaMark className="mx-auto size-14" />
             <h2 className="mt-7 text-balance text-3xl font-semibold tracking-tight sm:text-4xl xl:text-5xl">
               We will send you the number.
             </h2>

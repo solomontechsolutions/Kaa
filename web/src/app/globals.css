@@ -62,9 +62,6 @@
   --animate-marquee: marquee 42s linear infinite;
   --animate-float: float 7s ease-in-out infinite;
   --animate-shimmer: shimmer 2.4s linear infinite;
-  --animate-pinch-left: pinch-left 3.6s cubic-bezier(0.45, 0, 0.25, 1) infinite;
-  --animate-pinch-right: pinch-right 3.6s cubic-bezier(0.45, 0, 0.25, 1) infinite;
-  --animate-scuttle: scuttle 3.6s cubic-bezier(0.45, 0, 0.25, 1) infinite;
   --animate-splash-mark: splash-mark 1.5s cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-splash-word: splash-word 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.45s both;
   --animate-splash-tagline: splash-word 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.72s both;
@@ -92,30 +89,10 @@
   to   { background-position: 180% 0; }
 }
 
-/* The crab works its pincers: a quick snap, then a long hold.
-   Each claw is rotated about its own base so the blades hinge rather than slide. */
-@keyframes pinch-left {
-  0%, 62%, 100% { transform: rotate(0deg); }
-  70%           { transform: rotate(-13deg); }
-  78%           { transform: rotate(3deg); }
-  86%           { transform: rotate(-7deg); }
-}
-@keyframes pinch-right {
-  0%, 62%, 100% { transform: rotate(0deg); }
-  70%           { transform: rotate(13deg); }
-  78%           { transform: rotate(-3deg); }
-  86%           { transform: rotate(7deg); }
-}
-/* The shell rocks very slightly against the claws, so the snap has weight. */
-@keyframes scuttle {
-  0%, 62%, 100% { transform: translateY(0) rotate(0deg); }
-  72%           { transform: translateY(0.6px) rotate(-1.1deg); }
-  84%           { transform: translateY(0.3px) rotate(0.7deg); }
-}
 
-/* The opening. The mark arrives from nothing, settles with a spring, and the
-   claws take over from there — the loop in `kaa-mark-animated` picks up where
-   this leaves off, so the crab never appears to stop and restart. */
+/* The opening. The mark arrives from nothing and settles with a spring. The
+   artwork is the approved one, so the motion moves it as a whole rather than
+   working its parts. */
 @keyframes splash-mark {
   0%   { opacity: 0; transform: scale(0.55) rotate(-14deg); }
   55%  { opacity: 1; transform: scale(1.08) rotate(3deg); }
@@ -257,17 +234,6 @@
     transform: none;
   }
 
-  /* Pincer loop. Hover works the claws on any mark; `animated` runs it idle. */
-  .kaa-mark-animated .kaa-claw-left  { animation: var(--animate-pinch-left); }
-  .kaa-mark-animated .kaa-claw-right { animation: var(--animate-pinch-right); }
-  .kaa-mark-animated .kaa-shell      { animation: var(--animate-scuttle); }
-
-  .group:hover .kaa-claw-left,
-  a:hover .kaa-claw-left,
-  button:hover .kaa-claw-left  { animation: pinch-left 0.7s var(--ease-spring); }
-  .group:hover .kaa-claw-right,
-  a:hover .kaa-claw-right,
-  button:hover .kaa-claw-right { animation: pinch-right 0.7s var(--ease-spring); }
 
   .kaa-splash-mark    { animation: var(--animate-splash-mark); }
   .kaa-splash-word    { animation: var(--animate-splash-word); }

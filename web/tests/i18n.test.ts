@@ -36,6 +36,8 @@ describe("the three languages", () => {
       "tabs.search",
       "splash.greeting",       // "Karibu" — the app greets in Swahili throughout
       "join.phonePlaceholder", // 07XXXXXXXX
+      "fieldops.entity",       // the entity's name, same in every language
+      "fieldops.app.title",
     ];
 
     for (const locale of ["sw", "rw"] as const) {

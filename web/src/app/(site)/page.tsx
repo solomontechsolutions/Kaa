@@ -413,7 +413,7 @@ export default function HomePage() {
       <section id="get-the-app" className="border-t border-border py-24 lg:py-32">
         <div className="shell">
           <Reveal className="mx-auto max-w-2xl text-center">
-            <KaaMark className="mx-auto size-14 text-kaa-500" gradient animated id="cta-mark" />
+            <KaaMark className="mx-auto size-14" />
             <h2 className="mt-7 text-balance text-3xl font-semibold tracking-tight sm:text-4xl xl:text-5xl">
               Be first when Kaa opens in your ward.
             </h2>

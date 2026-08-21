@@ -22,14 +22,45 @@ deployed twice, and one database behind four interfaces.
 |---|---|---|---|
 | **Website** | `kaatz.vercel.app` | `/` | Public |
 | **Kaa app** | `kaatz.vercel.app` | `/app` | Tenants |
-| **Kaa Operators** | `kaatz.vercel.app` | `/operators` | Landlords enrolled by Field Ops, property managers, platform admin |
-| **Kaa Field Ops** | `kaafieldops.vercel.app` | `/` | Field agents |
+| **Kaa Operators** | `kaatz.vercel.app` | `/operators` | Landlords enrolled by FieldOps, property managers, platform admin |
 | **WhatsApp assistant** | webhook | `/api/whatsapp/webhook` | Tenants |
+| **FieldOps portal** | `kaafieldops.vercel.app` | `/` | FieldOps supervisors, Kaa reviewers |
+| **FieldOps field app** | `kaafieldops.vercel.app` | `/app` | FieldOps officers, on a PDU |
 
-**Field Ops is a separate deployment.** It is the same repository with
-`NEXT_PUBLIC_KAA_SURFACE=fieldops`, which mounts the agent's day at the root of its own domain. The
-main deployment does not serve `/field` at all — a request for it there is a 404, not a redirect,
-because Field Ops is not a page of the Kaa website and should not be reachable from it.
+### FieldOps is a separate company
+
+Not a section of Kaa. FieldOps is its own operating entity, jointly owned by Kaa and an established
+dalali, and its employees are on its payroll. It collects property data on Kaa's behalf; Kaa reviews
+that data and decides what enters its marketplace.
+
+That is why it is a separate deployment (`NEXT_PUBLIC_KAA_SURFACE=fieldops`), why the tenant site
+carries no link to it, and why the main deployment answers 404 for `/field` rather than redirecting.
+
+It ships as two applications, because a supervisor at a desk and an officer at a gate want opposite
+things:
+
+- **`kaafieldops.vercel.app`** — the operations portal. Sidebar, dashboard, tables, officer
+  management, activity, reports. Desktop-first; it works on a phone but that is not the target.
+- **`kaafieldops.vercel.app/app`** — the field application. One-handed, offline-first, camera and
+  GPS. Everything is written to the handset before it is sent, and uploads when a signal returns.
+
+```text
+FieldOps officer ─▶ collect on the PDU ─▶ upload
+                                            │
+                                    Kaa operator reviews
+                                            │
+                            ┌───────────────┴───────────────┐
+                            ▼                               ▼
+                   send back with reasons               approve
+                            │                               │
+                     officer corrects              becomes a Kaa property
+                            │
+                        re-upload ─▶ back to the queue
+```
+
+An officer cannot approve their own work. That rule is in the service, in the route handlers and in
+row-level security, and it is what the whole arrangement is for — the entity collecting the data is
+not the entity accepting it.
 
 ### Landlords do not sign up
 
@@ -103,6 +134,7 @@ npm --prefix web test
 │       ├── accounts/           NIDA, phone OTP, sessions, account store
 │       ├── data/               Seed dataset, org read model, tenant catalogue
 │       ├── i18n/               Swahili, English, Kinyarwanda
+│       ├── fieldops/           Submissions, workflow, permissions, offline queue
 │       ├── search/             Criteria parsing and the ranked search service
 │       ├── subscription/       Membership state machine
 │       └── whatsapp/           Transport, conversation manager, phrasebook
@@ -132,6 +164,9 @@ pieces that matter:
   rental match, per the FieldOps agreement.
 - **Leases, invoices, payments**, mobile money settlement with the provider fee recorded separately
   so it can be shown rather than buried.
+- **FieldOps** ([`0004_fieldops.sql`](supabase/migrations/0004_fieldops.sql)), the separate entity's
+  officers, submissions, photos, corrections and append-only audit trail. `kaa_unit_id` on a
+  submission is the one bridge between FieldOps' records and Kaa's.
 - **Tenant accounts, memberships, saved properties** ([`0003_tenant_accounts.sql`](supabase/migrations/0003_tenant_accounts.sql)),
   the tenant side. A NIDA number is stored only as a salted hash plus its last four digits. A
   membership has exactly one path to `active`, and saved properties are gated in the database as

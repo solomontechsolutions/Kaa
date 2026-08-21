@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 import { KaaMark } from "@/components/brand/logo";
 import { ButtonLink } from "@/components/ui";
 
@@ -13,7 +11,7 @@ export const metadata = { title: "Not found" };
 export default function NotFound() {
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center px-6 text-center">
-      <KaaMark className="size-14 text-kaa-500" gradient id="not-found" />
+      <KaaMark className="size-14" />
       <p className="tnum mt-8 text-sm font-semibold uppercase tracking-wider text-foreground-subtle">404</p>
       <h1 className="mt-3 text-2xl font-semibold tracking-tight">There is nothing here.</h1>
       <p className="mt-3 max-w-sm text-pretty leading-relaxed text-foreground-muted">
@@ -26,11 +24,7 @@ export default function NotFound() {
         </ButtonLink>
       </div>
       <p className="mt-10 text-xs text-foreground-subtle">
-        Kaa Field Ops agents:{" "}
-        <Link href="/field-ops" className="underline underline-offset-4">
-          your portal is at its own address
-        </Link>
-        .
+        FieldOps staff: your portal is a separate site, at its own address.
       </p>
     </div>
   );
