@@ -195,6 +195,10 @@ const en = {
     noTenancy: "You have no active tenancy on Kaa yet. Once you sign, the contract, rent schedule and receipts live here.",
     findHome: "Find a home",
     signOut: "Sign out",
+    landlordRent: "Landlord rent",
+    kaaServiceCharge: "Kaa service charge ({rate}%)",
+    totalMonthlyPayment: "Total monthly payment",
+    rentBreakdownNote: "Kaa's charge is separate from your landlord's rent — it is never added into it.",
   },
 
   fieldops: {
@@ -652,6 +656,10 @@ const sw: Dictionary = {
     noTenancy: "Bado huna upangaji hai kwenye Kaa. Ukishasaini, mkataba, ratiba ya kodi na risiti vitakuwa hapa.",
     findHome: "Tafuta nyumba",
     signOut: "Toka",
+    landlordRent: "Kodi ya mwenye nyumba",
+    kaaServiceCharge: "Ada ya huduma ya Kaa ({rate}%)",
+    totalMonthlyPayment: "Jumla ya malipo ya mwezi",
+    rentBreakdownNote: "Ada ya Kaa ni tofauti na kodi ya mwenye nyumba — haiongezwi kwenye kodi.",
   },
 
   fieldops: {
@@ -1103,6 +1111,10 @@ const rw: Dictionary = {
     noTenancy: "Nta bukode bufite akamaro ufite kuri Kaa. Nusinya, amasezerano, gahunda y'ubukode n'inyemezabwishyu bizaba hano.",
     findHome: "Shaka inzu",
     signOut: "Sohoka",
+    landlordRent: "Ubukode bw'unyir'inzu",
+    kaaServiceCharge: "Amafaranga ya serivisi ya Kaa ({rate}%)",
+    totalMonthlyPayment: "Igiteranyo cy'ukwezi",
+    rentBreakdownNote: "Amafaranga ya Kaa ni ayindi, atari mu bukode bw'unyir'inzu — ntaho bishyirwa hamwe.",
   },
 
   fieldops: {

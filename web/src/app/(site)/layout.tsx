@@ -40,9 +40,10 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
             <LanguageSwitcher current={locale} />
             {/* Sign in, not sign up. Landlord accounts are created by the Field
                 Ops agent who enrols the property; there is no self-registration
-                anywhere on this site. */}
+                anywhere on this site. A landlord is not a Kaa operator, so this
+                goes to the landlord portal, never to /operators. */}
             <Link
-              href="/operators"
+              href="/landlord/sign-in"
               className="hidden rounded-lg px-3 py-2 text-sm font-medium text-foreground-muted transition-colors hover:text-foreground sm:block"
             >
               Landlord sign in
@@ -83,7 +84,8 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
               title="Partners"
               links={[
                 { href: "/landlords", label: "For landlords" },
-                { href: "/operators", label: "Operator sign in" },
+                { href: "/landlord/sign-in", label: "Landlord sign in" },
+                { href: "/operators", label: "Kaa staff: operator sign in" },
               ]}
             />
             <FooterColumn

@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-import { fromFieldOpsRole, ROLE_HOME } from "@/lib/auth/roles";
+import { fromFieldOpsRole, ROLE_HOME, ROLE_SIGN_IN } from "@/lib/auth/roles";
 import { actorFromToken, FIELDOPS_COOKIE } from "@/lib/fieldops/session";
 import { landlordFromToken, LANDLORD_COOKIE } from "@/lib/landlords/session";
 
@@ -51,10 +51,11 @@ function enforceRole(request: NextRequest): NextResponse | null {
   const { pathname } = request.nextUrl;
 
   if (pathname === "/operators" || pathname.startsWith("/operators/")) {
+    if (pathname === "/operators/sign-in") return null;
     const actor = actorFromToken(request.cookies.get(FIELDOPS_COOKIE)?.value);
     if (!actor || actor.role !== "kaa_operator") {
       const url = request.nextUrl.clone();
-      url.pathname = actor ? ROLE_HOME[fromFieldOpsRole(actor.role)] : "/field/sign-in";
+      url.pathname = actor ? ROLE_HOME[fromFieldOpsRole(actor.role)] : ROLE_SIGN_IN.KAA_OPERATOR;
       return NextResponse.redirect(url);
     }
     return null;
@@ -100,9 +101,20 @@ function routeForSurface(request: NextRequest): NextResponse | null {
   }
 
   // The main deployment. Field Ops lives at its own domain and its own Vercel
-  // project; serving it here as well would give the surface two URLs, one of
-  // them reachable from the marketing site.
+  // project; serving it here as well would give the public surface two URLs,
+  // one of them reachable from the marketing site.
+  //
+  // A signed-in Kaa operator is the one exception: their home is /operators,
+  // on *this* domain, and reviewing FieldOps submissions is part of that job
+  // (see the "FieldOps submissions" link in /operators). Letting their
+  // already-authenticated request through does not make FieldOps
+  // discoverable — nobody without that session reaches anything past this
+  // check, so the marketing site still never links or leaks a working /field
+  // URL to the public.
   if (pathname === "/field" || pathname.startsWith("/field/")) {
+    const actor = actorFromToken(request.cookies.get(FIELDOPS_COOKIE)?.value);
+    if (actor?.role === "kaa_operator") return null;
+
     // Rewriting to a path no route matches renders `app/not-found.tsx` with a
     // 404. A redirect would be worse: it would leave the impression that Field
     // Ops has an address on this domain and is merely elsewhere today.

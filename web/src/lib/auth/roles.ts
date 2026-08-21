@@ -38,11 +38,20 @@ export const ROLE_HOME: Record<Role, string> = {
   FIELDOPS_ADMIN: "/field",
 };
 
-/** Where a signed-out visitor for each role starts. */
+/**
+ * Where a signed-out visitor for each role starts.
+ *
+ * `kaatz.vercel.app` (the main deployment) never serves `/field` — see
+ * `proxy.ts` — so a Kaa operator, who belongs on *this* domain at
+ * `/operators`, gets a sign-in page that lives here too rather than one that
+ * 404s by design. FieldOps employees are the opposite case: they are meant
+ * to be on the separate FieldOps deployment, where `/field/sign-in` is the
+ * real address.
+ */
 export const ROLE_SIGN_IN: Record<Role, string> = {
   TENANT: "/app/welcome",
   LANDLORD: "/landlord/sign-in",
-  KAA_OPERATOR: "/field/sign-in",
+  KAA_OPERATOR: "/operators/sign-in",
   FIELDOPS_OFFICER: "/field/sign-in",
   FIELDOPS_ADMIN: "/field/sign-in",
 };

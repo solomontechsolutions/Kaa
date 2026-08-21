@@ -6,8 +6,10 @@ import { SignOutButton } from "@/components/app/sign-out-button";
 import { Badge, ButtonLink, Card } from "@/components/ui";
 import { accountSummary, currentEntitlement } from "@/lib/access/session";
 import { getAccount } from "@/lib/accounts/store";
-import { date } from "@/lib/format";
+import { getLease } from "@/lib/data/queries";
+import { date, money } from "@/lib/format";
 import { getI18n } from "@/lib/i18n/server";
+import { rentBreakdown } from "@/lib/pricing/service-charge";
 import { initials } from "@/lib/utils";
 
 export const metadata = { title: "You" };
@@ -104,10 +106,48 @@ export default async function AppTenancyPage() {
         <p className="text-sm font-semibold uppercase tracking-wider text-foreground-subtle">
           {t("account.tenancy")}
         </p>
-        <p className="mt-3 text-sm leading-relaxed text-foreground-muted">{t("account.noTenancy")}</p>
-        <ButtonLink href="/app/search" variant="outline" className="mt-5 w-full">
-          {t("account.findHome")}
-        </ButtonLink>
+        {(() => {
+          const lease = account.activeLeaseId ? getLease(account.activeLeaseId) : undefined;
+          if (!lease) {
+            return (
+              <>
+                <p className="mt-3 text-sm leading-relaxed text-foreground-muted">{t("account.noTenancy")}</p>
+                <ButtonLink href="/app/search" variant="outline" className="mt-5 w-full">
+                  {t("account.findHome")}
+                </ButtonLink>
+              </>
+            );
+          }
+
+          // The landlord's rent and Kaa's charge are computed here, from the
+          // landlord's current rent, and never stored as one combined figure.
+          const breakdown = rentBreakdown(lease.rentAmount);
+
+          return (
+            <div className="mt-3">
+              <p className="text-sm font-medium">{lease.unit?.property.name ?? lease.reference}</p>
+              <ul className="mt-3 space-y-2 text-sm">
+                <li className="flex items-center justify-between">
+                  <span className="text-foreground-muted">{t("account.landlordRent")}</span>
+                  <span className="tnum font-medium">{money(breakdown.baseRent)}</span>
+                </li>
+                <li className="flex items-center justify-between">
+                  <span className="text-foreground-muted">
+                    {t("account.kaaServiceCharge", { rate: String(breakdown.kaaServiceRate * 100) })}
+                  </span>
+                  <span className="tnum font-medium">{money(breakdown.kaaServiceCharge)}</span>
+                </li>
+                <li className="flex items-center justify-between border-t border-border pt-2 text-base">
+                  <span className="font-semibold">{t("account.totalMonthlyPayment")}</span>
+                  <span className="tnum font-semibold text-kaa-700 dark:text-kaa-400">
+                    {money(breakdown.tenantTotal)}
+                  </span>
+                </li>
+              </ul>
+              <p className="mt-3 text-xs text-foreground-subtle">{t("account.rentBreakdownNote")}</p>
+            </div>
+          );
+        })()}
       </Card>
 
       <SignOutButton label={t("account.signOut")} />

@@ -43,6 +43,10 @@ export function currentOrg() {
   return organizations.find((o) => o.id === CURRENT_ORG_ID)!;
 }
 
+export function getOrg(id: string) {
+  return organizations.find((o) => o.id === id);
+}
+
 export function currentAgent(): FieldAgent {
   return fieldAgents.find((a) => a.id === CURRENT_AGENT_ID)!;
 }
@@ -116,6 +120,12 @@ export function listTenants(orgId = CURRENT_ORG_ID) {
 }
 
 export type TenantRow = ReturnType<typeof listTenants>[number];
+
+export function getLease(id: string) {
+  const lease = leases.find((l) => l.id === id);
+  if (!lease) return undefined;
+  return { ...lease, tenant: getTenant(lease.tenantId), unit: getUnit(lease.unitId) };
+}
 
 export function listLeases(orgId = CURRENT_ORG_ID) {
   return leases

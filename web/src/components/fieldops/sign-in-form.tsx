@@ -4,7 +4,7 @@ import { ArrowRight, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 
-import { FieldOpsLockup } from "@/components/brand/logo";
+import { FieldOpsLockup, KaaLockup } from "@/components/brand/logo";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import { Button } from "@/components/ui";
 import { translator } from "@/lib/i18n";
@@ -25,7 +25,16 @@ interface RosterEntry {
  * land in the portal — decided by the role on their record, not by which URL
  * they typed, so an officer cannot reach the review queue by guessing a path.
  */
-export function SignInForm({ locale, roster }: { locale: Locale; roster: RosterEntry[] }) {
+export function SignInForm({
+  locale,
+  roster,
+  brand = "fieldops",
+}: {
+  locale: Locale;
+  roster: RosterEntry[];
+  /** `/operators/sign-in` uses the same form on Kaa's own lockup, not FieldOps'. */
+  brand?: "fieldops" | "operators";
+}) {
   const router = useRouter();
   const t = React.useMemo(() => translator(locale), [locale]);
 
@@ -51,7 +60,18 @@ export function SignInForm({ locale, roster }: { locale: Locale; roster: RosterE
         return;
       }
 
-      router.push(payload.actor.role === "field_officer" ? "/field/app" : "/field");
+      // Three roles sign in here, three different homes: an officer collects
+      // on the handset, a supervisor runs the FieldOps desktop, and a Kaa
+      // operator is not a FieldOps employee at all — their home is Kaa's own
+      // internal admin, with a link back into FieldOps' review queue from
+      // there (see the "FieldOps submissions" link in /operators).
+      const home =
+        payload.actor.role === "field_officer"
+          ? "/field/app"
+          : payload.actor.role === "kaa_operator"
+            ? "/operators"
+            : "/field";
+      router.push(home);
       router.refresh();
     } catch {
       setError(t("common.somethingWentWrong"));
@@ -63,7 +83,7 @@ export function SignInForm({ locale, roster }: { locale: Locale; roster: RosterE
   return (
     <div className="flex min-h-dvh flex-col bg-surface">
       <header className="flex h-16 items-center justify-between px-5 lg:px-8">
-        <FieldOpsLockup compact />
+        {brand === "operators" ? <KaaLockup surface="Operators" /> : <FieldOpsLockup compact />}
         <LanguageSwitcher current={locale} />
       </header>
 

@@ -76,7 +76,7 @@ export function KaaWordmark({
  * lockup says so by putting its own name first and crediting Kaa beneath it
  * rather than presenting itself as a department of Kaa.
  */
-export function KaaLockup({ surface, className }: { surface: "Operators"; className?: string }) {
+export function KaaLockup({ surface, className }: { surface: "Operators" | "Landlord"; className?: string }) {
   return (
     <span className={cn("group inline-flex items-center gap-2.5", className)}>
       <KaaMark className="size-8 shrink-0 transition-transform duration-500 group-hover:scale-105" />

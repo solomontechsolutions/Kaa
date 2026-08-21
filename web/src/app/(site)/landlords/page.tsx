@@ -232,7 +232,7 @@ export default function LandlordsPage() {
                 <Smartphone />
                 Open the Kaa app
               </ButtonLink>
-              <ButtonLink href="/operators" size="lg" variant="outline">
+              <ButtonLink href="/landlord/sign-in" size="lg" variant="outline">
                 Sign in on the web
               </ButtonLink>
             </div>
