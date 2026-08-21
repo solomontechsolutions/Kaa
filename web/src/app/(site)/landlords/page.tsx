@@ -102,15 +102,16 @@ export default function LandlordsPage() {
                 <Row label="Tenant vetting on NIDA" value="Free" />
                 <Row label="Rent collection and reporting" value="Free" />
                 <Row
-                  label="When Kaa fills the unit"
-                  value="up to 5%"
-                  note="of the first year's rent, charged once"
+                  label="Subscription, commission or listing fee"
+                  value="TSh 0"
+                  note="always — Kaa does not charge landlords, ever"
                   emphasis
                 />
               </dl>
               <p className="mt-7 border-t border-border pt-6 text-sm leading-relaxed text-foreground-muted">
-                You pay only when a unit is actually let. An empty unit costs you nothing on Kaa. It costs
-                you the rent you are not collecting, which is the point.
+                Kaa&rsquo;s revenue comes from the tenant, not from you: a service charge on top of your
+                rent, billed separately to whoever moves in. Your rent reaches you exactly as agreed,
+                whether the unit is full or empty.
               </p>
             </Card>
           </Reveal>
@@ -172,8 +173,9 @@ export default function LandlordsPage() {
             </h2>
             <p className="mt-5 text-pretty text-lg leading-relaxed text-white/70">
               A unit at <span className="tnum">{money(700_000)}</span> a month standing empty for two months
-              has cost you <span className="tnum">{money(1_400_000)}</span>, many times any facilitation fee.
-              Speed of letting is the number that matters, and it is the number Kaa is built to move.
+              has cost you <span className="tnum">{money(1_400_000)}</span> — and Kaa never charges you a
+              fee to fill it. Speed of letting is the number that matters, and it is the number Kaa is
+              built to move.
             </p>
           </Reveal>
 

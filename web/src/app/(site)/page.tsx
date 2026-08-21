@@ -388,8 +388,9 @@ export default function HomePage() {
                 <span className="text-foreground-muted">to list and manage</span>
               </p>
               <p className="mt-4 text-sm leading-relaxed text-foreground-muted">
-                Kaa Field Ops manages the property at no cost to you. A facilitation fee of up to{" "}
-                <span className="tnum">5%</span> applies once, on a tenancy we fill.
+                Kaa Field Ops manages the property at no cost to you. Kaa never charges a landlord a
+                subscription or a commission — the <span className="tnum">10%</span> service charge is
+                billed to the tenant, separately from your rent.
               </p>
               <ul className="mt-7 space-y-3">
                 {[

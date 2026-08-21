@@ -97,8 +97,8 @@ export default function SettingsPage() {
               <Field label="Payout number" hint="Rent settles here within one business day.">
                 <Input defaultValue={displayPhone(org.contactPhone)} />
               </Field>
-              <Field label="Kaa facilitation rate" hint="Charged on a lease Kaa sources for you." className="sm:col-span-2">
-                <Input defaultValue="5%" disabled />
+              <Field label="Kaa platform fee" hint="Kaa never charges a landlord a subscription or a commission." className="sm:col-span-2">
+                <Input defaultValue="TSh 0 — always" disabled />
               </Field>
             </CardBody>
             <CardFooter className="justify-end">

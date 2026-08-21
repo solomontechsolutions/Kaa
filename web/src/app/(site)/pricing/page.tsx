@@ -2,13 +2,16 @@ import { BadgeCheck, Minus } from "lucide-react";
 import type { Metadata } from "next";
 
 import { Badge, ButtonLink, Card } from "@/components/ui";
-import { money } from "@/lib/format";
+import { money, percent } from "@/lib/format";
+import { KAA_RENTAL_SERVICE_RATE } from "@/lib/pricing/service-charge";
 
 export const metadata: Metadata = {
   title: "Pricing",
   description:
-    "Kaa costs tenants TSh 10,000 a year with no viewing fees. Landlords list free and pay up to 5% only when Kaa fills a unit.",
+    "Kaa costs tenants TSh 10,000 a year with no viewing fees, plus a 10% service charge shown separately from your landlord's rent. Landlords pay Kaa nothing, ever.",
 };
+
+const KAA_RATE_LABEL = percent(KAA_RENTAL_SERVICE_RATE * 100);
 
 const comparison = [
   { feature: "Access to every verified listing", tenant: true, landlord: false },
@@ -50,7 +53,8 @@ export default function PricingPage() {
             <p className="mt-1 text-foreground-muted">per year</p>
             <p className="mt-5 text-sm leading-relaxed text-foreground-muted">
               Roughly what one dalali charges to open a single gate, except this covers the whole search,
-              for a year.
+              for a year. Once you rent through Kaa, a separate {KAA_RATE_LABEL} service charge applies on
+              top of your landlord&rsquo;s rent, shown as its own line — never hidden inside the rent.
             </p>
             <ul className="mt-7 flex-1 space-y-3">
               {[
@@ -77,11 +81,12 @@ export default function PricingPage() {
               <span className="text-5xl font-semibold tracking-tight">Free</span>
             </p>
             <p className="mt-1 text-foreground-muted">
-              plus up to 5% when Kaa fills a unit
+              {money(0)} to Kaa. Always.
             </p>
             <p className="mt-5 text-sm leading-relaxed text-foreground-muted">
-              Listing, verification, photography and the whole Operators portal cost nothing. The
-              facilitation fee applies once, on a tenancy Kaa sourced for you.
+              Listing, verification, photography and the whole Landlord portal cost nothing — no
+              subscription, no commission, no facilitation fee. Kaa&rsquo;s {KAA_RATE_LABEL} service
+              charge is billed separately to the tenant, on top of your rent, never taken from it.
             </p>
             <ul className="mt-7 flex-1 space-y-3">
               {[
@@ -149,11 +154,11 @@ export default function PricingPage() {
             />
             <Faq
               q="Does Kaa take a cut of my rent?"
-              a="No. Rent goes to your landlord. The subscription is the only thing you pay Kaa."
+              a={`No — your landlord's rent goes to your landlord, in full, unchanged. Once you rent through Kaa, Kaa adds its own ${KAA_RATE_LABEL} service charge as a separate line, for as long as the rental is active. Your rent and Kaa's charge are always shown apart, never combined into one number.`}
             />
             <Faq
-              q="What is the 5% landlords pay?"
-              a="A one-off facilitation fee of up to 5% of the first year's rent, charged to the landlord only when Kaa introduces the tenant who signs. A landlord who lists a property and fills it themselves pays nothing."
+              q="What do landlords pay Kaa?"
+              a="Nothing. Kaa does not charge landlords a subscription, a commission or a listing fee — not once, not ever. A landlord lists and manages their property on Kaa for TSh 0."
             />
             <Faq
               q="Can I pay the subscription by mobile money?"
